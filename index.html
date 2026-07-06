@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Living Sports Universe</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <!--
+      O "?v=N" é uma trava de cache: ao mudar o número a cada versão,
+      o navegador (inclusive no celular) baixa o arquivo novo em vez de
+      usar a cópia antiga guardada. Lembrete: incrementar N sempre que
+      um destes arquivos for alterado.
+    -->
+    <link rel="stylesheet" href="css/style.css?v=6" />
   </head>
   <body>
     <header id="topo">
@@ -31,11 +37,11 @@
       Ordem de carregamento IMPORTANTE (dependências por variáveis globais):
       Núcleo lógico primeiro, depois o módulo esportivo, e por fim a interface.
     -->
-    <script src="js/core/fabricaRegens.js"></script>
-    <script src="js/modulos-esportivos/moduloBasico.js"></script>
-    <script src="js/core/eventBus.js"></script>
-    <script src="js/core/memoriaHistorica.js"></script>
-    <script src="js/core/gameLoop.js"></script>
-    <script src="js/ui/renderizador.js"></script>
+    <script src="js/core/fabricaRegens.js?v=6"></script>
+    <script src="js/modulos-esportivos/moduloBasico.js?v=6"></script>
+    <script src="js/core/eventBus.js?v=6"></script>
+    <script src="js/core/memoriaHistorica.js?v=6"></script>
+    <script src="js/core/gameLoop.js?v=6"></script>
+    <script src="js/ui/renderizador.js?v=6"></script>
   </body>
 </html>
