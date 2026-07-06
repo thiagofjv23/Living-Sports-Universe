@@ -1,0 +1,132 @@
+/* =============================================================
+   Estilo básico — apenas o suficiente para distinguir o menu
+   lateral da área de conteúdo (duas colunas). Inspiração visual:
+   Wikipédia (leitura limpa, sem enfeites).
+   ============================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #202122;
+  background: #ffffff;
+}
+
+#topo {
+  padding: 16px 24px;
+  border-bottom: 1px solid #a2a9b1;
+  background: #f8f9fa;
+}
+
+#topo h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+#topo p {
+  margin: 4px 0 0;
+  color: #54595d;
+  font-size: 14px;
+}
+
+/* Duas colunas: menu à esquerda, conteúdo à direita. */
+#layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Menu Lateral (esquerda). */
+#menu-lateral {
+  width: 240px;
+  flex-shrink: 0;
+  padding: 16px;
+  border-right: 1px solid #a2a9b1;
+  background: #f8f9fa;
+  min-height: calc(100vh - 70px);
+}
+
+#menu-lateral h2 {
+  font-size: 16px;
+  margin-top: 0;
+}
+
+#lista-atletas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#lista-atletas li {
+  padding: 6px 8px;
+  color: #3366cc;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+#lista-atletas li:hover {
+  background: #eaf3ff;
+  text-decoration: underline;
+}
+
+/* Página Principal (direita) — a "Wikipédia". */
+#pagina-principal {
+  flex: 1;
+  padding: 24px 32px;
+  max-width: 800px;
+}
+
+#pagina-principal .dica {
+  color: #72777d;
+  font-style: italic;
+}
+
+#pagina-principal h2 {
+  border-bottom: 1px solid #a2a9b1;
+  padding-bottom: 6px;
+}
+
+/* Ficha de atributos do atleta. */
+.ficha {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+.ficha li {
+  padding: 4px 0;
+}
+
+/* Linha do Tempo (histórico de partidas). */
+.linha-do-tempo {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linha-do-tempo li {
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-left: 4px solid #a2a9b1;
+  background: #f8f9fa;
+}
+
+.linha-do-tempo li.venceu {
+  border-left-color: #14866d;
+}
+
+.linha-do-tempo li.perdeu {
+  border-left-color: #b32424;
+}
+
+.resultado-venceu {
+  color: #14866d;
+  font-weight: bold;
+}
+
+.resultado-perdeu {
+  color: #b32424;
+  font-weight: bold;
+}

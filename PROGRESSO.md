@@ -24,11 +24,11 @@
 
 ```
 Living-Sports-Universe/
-├── index.html                          ← (vazio) raiz
+├── index.html                          ← ✅ Passo 4 (interface de 2 colunas)
 ├── LSU_DIRETRIZES.md                   ← Documento Mestre (regras do universo)
 ├── PROGRESSO.md                        ← este diário
 ├── css/
-│   └── style.css                       ← (vazio)
+│   └── style.css                       ← ✅ Passo 4 (layout 2 colunas)
 └── js/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
@@ -38,7 +38,7 @@ Living-Sports-Universe/
     ├── modulos-esportivos/             ← MATEMÁTICA (só cálculo → JSON)
     │   └── moduloBasico.js             ← ✅ Passo 2 (implementado)
     └── ui/                             ← TELA (CQRS: só lê os dados)
-        └── renderizador.js             ← (vazio)
+        └── renderizador.js             ← ✅ Passo 4 (implementado)
 ```
 
 ---
@@ -106,14 +106,39 @@ Living-Sports-Universe/
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
+### ✅ Passo 4 — Interface Visual (primeira "página de Wikipédia")
+- **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js` (e ajuste
+  no `js/core/gameLoop.js`).
+- **`index.html`:** layout de 2 colunas — **Menu Lateral** (`#lista-atletas`) à
+  esquerda e **Página Principal** (`#pagina-principal`) à direita. Carrega os
+  scripts na ordem de dependência correta.
+- **`css/style.css`:** estilo simples inspirado na Wikipédia, só o suficiente
+  para separar menu e conteúdo; cores para vitória (verde) e derrota (vermelho).
+- **`renderizador.js` (CQRS — só leitura):**
+  - `iniciarMundo()`: chama `gerarMundo(6, 10)` (no Núcleo) e desenha o menu.
+  - `desenharMenuLateral()`: cria os `<li>` clicáveis com os nomes dos atletas.
+  - `abrirPaginaAtleta(idAtleta)`: monta a ficha (Nome/Idade/Habilidade) e a
+    **Linha do Tempo**, obtida por `memoriaHistorica.filter(...)` das partidas em
+    que o atleta jogou — indicando "Venceu/Perdeu", oponente e placar.
+  - A UI **nunca** altera a memória nem emite eventos — apenas lê.
+- **Decisão de arquitetura (CQRS/diretriz):** a geração do mundo (lógica +
+  `EventBus.emit`) foi movida para `gameLoop.js` (`gerarMundo`), mantendo o
+  `renderizador.js` livre de emissão de eventos — apenas leitura + DOM. Isso
+  cumpre a diretriz "Event Bus/Memória não misturados com o código de DOM".
+- **`gameLoop.js`:** deixou de rodar teste no carregamento; agora expõe a função
+  reutilizável `gerarMundo(quantidadeAtletas, quantidadePartidas)` (sem DOM, sem
+  `console.log`).
+- **Teste validado (navegador headless):** 6 atletas no menu, clique abre a
+  página com ficha + linha do tempo, sem erros no console.
+
 ---
 
 ## 🔜 Próximos Passos Previstos
-- **Renderizador** (`js/ui/renderizador.js`): lê a Memória Histórica e desenha a
-  tela (CQRS — só leitura), sem nunca alterar os dados.
-- **index.html / css:** amarrar os scripts na ordem correta e dar a primeira
-  interface visual ao universo.
+- **Links navegáveis entre páginas** (estilo Wikipédia): clicar no nome do
+  oponente dentro da Linha do Tempo para abrir a página dele.
+- **Mais tipos de evento/esporte** e páginas para outras entidades
+  (Organizações, Competições).
 - **Nota técnica:** hoje os arquivos usam variáveis/funções globais (`EventBus`,
-  `memoriaHistorica`, `gerarAtleta`, `simularPartida`) e dependem da ordem de
-  carregamento dos `<script>`. Num momento futuro podemos migrar para ES Modules
-  (`import`/`export`) para tornar as dependências explícitas.
+  `memoriaHistorica`, `gerarAtleta`, `simularPartida`, `gerarMundo`) e dependem
+  da ordem de carregamento dos `<script>`. Num momento futuro podemos migrar para
+  ES Modules (`import`/`export`) para tornar as dependências explícitas.
