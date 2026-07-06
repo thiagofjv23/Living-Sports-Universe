@@ -32,9 +32,9 @@ Living-Sports-Universe/
 └── js/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
-    │   ├── eventBus.js                 ← (vazio) Passo 3
-    │   ├── memoriaHistorica.js         ← (vazio)
-    │   └── gameLoop.js                 ← (vazio)
+    │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
+    │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
+    │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
     ├── modulos-esportivos/             ← MATEMÁTICA (só cálculo → JSON)
     │   └── moduloBasico.js             ← ✅ Passo 2 (implementado)
     └── ui/                             ← TELA (CQRS: só lê os dados)
@@ -83,17 +83,37 @@ Living-Sports-Universe/
   `console.log()` do resultado.
 - **Arquitetura:** só roda matemática e devolve JSON — não persiste nem desenha.
 
+### ✅ Passo 3 — Event Bus + Memória Histórica (Arquitetura Orientada a Eventos)
+- **Arquivos:** `js/core/eventBus.js`, `js/core/memoriaHistorica.js`,
+  `js/core/gameLoop.js`.
+- **`EventBus`** (Pub/Sub): objeto com `ouvintes` (mapa evento → callbacks),
+  `on(evento, callback)` para **assinar** e `emit(evento, payload)` para
+  **publicar** o fato a todos os inscritos. Desacopla produtor de consumidor.
+- **`memoriaHistorica`** (Event Store): array que começa vazio e só cresce por
+  eventos — é a fonte única da verdade (Event Sourcing).
+- **`ouvinteHistorico(payload)`**: único ponto autorizado a dar `push()` na
+  memória; registrado no bus via `EventBus.on("PARTIDA_FINALIZADA", ...)`.
+- **`gameLoop.js`** (orquestrador/teste): gera **4 atletas**, monta **3
+  confrontos**, simula cada um com `simularPartida()` e faz
+  `EventBus.emit("PARTIDA_FINALIZADA", resultado)`. Ao final,
+  `console.log(memoriaHistorica)`. **O gameLoop nunca escreve na memória
+  diretamente** — tudo passa pelo barramento.
+- **Teste validado:** 3 partidas → 3 registros arquivados na memória via bus.
+- **Limpeza (cumprindo nota técnica anterior):** removidos os `console.log` de
+  teste avulsos de `fabricaRegens.js` e `moduloBasico.js`; eles agora são
+  "bibliotecas" puras, e a orquestração/saída vive só no `gameLoop.js`.
+- **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
+  → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
+  precisa do `EventBus` já definido para registrar seu ouvinte.
+
 ---
 
 ## 🔜 Próximos Passos Previstos
-- **Passo 3 — Event Bus** (`js/core/eventBus.js`): barramento Pub/Sub para
-  publicar/assinar eventos como `PARTIDA_FINALIZADA`.
-- **Memória Histórica** (`js/core/memoriaHistorica.js`): assina os eventos e
-  arquiva o histórico (Event Sourcing).
-- **Game Loop** (`js/core/gameLoop.js`): orquestra a simulação (gerar atletas →
-  simular → publicar no Event Bus).
 - **Renderizador** (`js/ui/renderizador.js`): lê a Memória Histórica e desenha a
-  tela (CQRS — só leitura).
-- **Nota técnica:** ao chegar no Event Bus, os `console.log` de teste no topo dos
-  arquivos serão removidos e as funções passarão a ser exportadas/orquestradas
-  pelo `gameLoop`, em vez de rodarem sozinhas no carregamento.
+  tela (CQRS — só leitura), sem nunca alterar os dados.
+- **index.html / css:** amarrar os scripts na ordem correta e dar a primeira
+  interface visual ao universo.
+- **Nota técnica:** hoje os arquivos usam variáveis/funções globais (`EventBus`,
+  `memoriaHistorica`, `gerarAtleta`, `simularPartida`) e dependem da ordem de
+  carregamento dos `<script>`. Num momento futuro podemos migrar para ES Modules
+  (`import`/`export`) para tornar as dependências explícitas.

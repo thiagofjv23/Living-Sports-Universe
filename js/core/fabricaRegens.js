@@ -29,6 +29,3 @@ function gerarAtleta() {
     habilidade: sortearInteiro(1, 100),
   };
 }
-
-// Teste rápido: roda a função e imprime o resultado no console do navegador.
-console.log(gerarAtleta());

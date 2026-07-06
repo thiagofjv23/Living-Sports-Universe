@@ -64,9 +64,3 @@ function simularPartida(atletaA, atletaB) {
     },
   };
 }
-
-// Teste rápido: gera dois atletas, simula a partida e imprime o
-// Pacote de Fatos no console do navegador.
-const atleta1 = gerarAtleta();
-const atleta2 = gerarAtleta();
-console.log(simularPartida(atleta1, atleta2));
