@@ -32,6 +32,39 @@ body {
   font-size: 14px;
 }
 
+#indicador-rodada {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #202122;
+}
+
+#indicador-rodada strong {
+  color: #14866d;
+}
+
+/* Botão grande de avançar o tempo, no topo do menu lateral. */
+#btn-avancar {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #3366cc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#btn-avancar:hover {
+  background: #2a4b8d;
+}
+
+#btn-avancar:active {
+  background: #14866d;
+}
+
 /* Duas colunas: menu à esquerda, conteúdo à direita. */
 #layout {
   display: flex;
@@ -81,6 +114,17 @@ body {
 #pagina-principal .dica {
   color: #72777d;
   font-style: italic;
+}
+
+/* "Pisca" sutil quando a página é (re)carregada — dá o feedback de
+   que o tempo avançou e os dados foram atualizados. */
+@keyframes piscar {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+
+#pagina-principal.piscar {
+  animation: piscar 0.3s ease-in;
 }
 
 #pagina-principal h2 {

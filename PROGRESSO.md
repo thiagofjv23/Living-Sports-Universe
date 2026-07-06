@@ -106,6 +106,27 @@ Living-Sports-Universe/
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
+### ✅ Passo 5 — Ciclo de Tempo (Botão "Avançar 1 Rodada")
+- **Arquivos:** `index.html`, `css/style.css`, `js/core/gameLoop.js`,
+  `js/ui/renderizador.js`.
+- **Tempo (Núcleo):** variável global `rodadaAtual` (inicia em 1) em
+  `gameLoop.js`. Nova função `simularRodada(atletas)`: incrementa a rodada,
+  embaralha os atletas em **duplas aleatórias** (Fisher–Yates) e simula cada
+  confronto, publicando no EventBus.
+- **Carimbo de tempo:** o Núcleo agora estampa `rodada` em cada Pacote de Fatos
+  (via `simularConfronto`) antes de emitir — o módulo esportivo continua agnóstico
+  quanto ao conceito de tempo.
+- **Reatividade (UI):** `renderizador.js` ganhou:
+  - `atletaSelecionadoId` (estado da interface: quem está sendo visto).
+  - `avancarTempo()`: handler do botão — chama `simularRodada()` no Núcleo,
+    atualiza o display da rodada e, se há atleta selecionado, chama
+    `abrirPaginaAtleta()` de novo para a tela "piscar" e recarregar.
+  - `atualizarDisplayRodada()`: escreve `rodadaAtual` no topo (leitura pura).
+- **HTML/CSS:** botão grande `#btn-avancar` no topo do menu; indicador
+  "Rodada Atual: N" no topo; animação `piscar` ao recarregar a página.
+- **Teste validado (headless):** 2 cliques → rodada 1→3; timeline do atleta
+  cresce e passa a exibir "Rodada 1/2/3"; sem erros no console.
+
 ### ✅ Passo 4 — Interface Visual (primeira "página de Wikipédia")
 - **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js` (e ajuste
   no `js/core/gameLoop.js`).

@@ -16,13 +16,44 @@
 // a fonte da verdade dos FATOS continua sendo a memoriaHistorica.
 let atletasDoMundo = [];
 
-// Ponto de entrada: cria o mundo (delegando a lógica ao Núcleo) e
-// desenha o menu lateral.
+// Estado da INTERFACE: qual atleta o usuário está visualizando.
+// null = nenhuma página aberta. É usado para "recarregar" a página
+// quando o tempo avança (a mágica da reatividade).
+let atletaSelecionadoId = null;
+
+// Ponto de entrada: cria o mundo (delegando a lógica ao Núcleo),
+// desenha o menu lateral, atualiza o relógio e liga o botão.
 function iniciarMundo() {
   // gerarMundo() (gameLoop.js) gera 6 atletas, simula 10 partidas e
   // publica tudo no EventBus -> a memoriaHistorica é populada.
   atletasDoMundo = gerarMundo(6, 10);
   desenharMenuLateral();
+  atualizarDisplayRodada();
+
+  // Liga o botão "Avançar 1 Rodada" ao ciclo de tempo.
+  document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
+}
+
+// Avança o tempo: pede ao Núcleo para simular uma nova rodada e,
+// em seguida, sincroniza a interface com o novo estado do mundo.
+function avancarTempo() {
+  // Simulação da rodada (incrementa rodadaAtual, forma duplas,
+  // simula e emite no EventBus) vive no Núcleo — sem DOM aqui.
+  simularRodada(atletasDoMundo);
+
+  // A tela precisa saber que o tempo passou:
+  atualizarDisplayRodada();
+
+  // A MÁGICA DA REATIVIDADE: se o usuário está vendo alguém, a
+  // página "pisca" e recarrega com as partidas recém-geradas.
+  if (atletaSelecionadoId) {
+    abrirPaginaAtleta(atletaSelecionadoId);
+  }
+}
+
+// Escreve a rodada atual no topo da página (leitura de rodadaAtual).
+function atualizarDisplayRodada() {
+  document.getElementById("rodada-atual").textContent = rodadaAtual;
 }
 
 // Desenha a lista clicável de atletas no menu lateral (esquerda).
@@ -45,6 +76,10 @@ function abrirPaginaAtleta(idAtleta) {
   const atleta = atletasDoMundo.find((a) => a.id === idAtleta);
   if (!atleta) return;
 
+  // Guarda quem está sendo visto, para o re-render reativo ao avançar
+  // o tempo saber qual página recarregar.
+  atletaSelecionadoId = idAtleta;
+
   // A MÁGICA DA HISTÓRIA: leitura pura (filter) da memória — sem
   // alterar nada. Pega só as partidas onde este atleta jogou.
   const partidasDoAtleta = memoriaHistorica.filter(
@@ -63,6 +98,11 @@ function abrirPaginaAtleta(idAtleta) {
     <h3>Linha do Tempo (${partidasDoAtleta.length} partida(s))</h3>
     ${montarLinhaDoTempo(idAtleta, partidasDoAtleta)}
   `;
+
+  // Reinicia a animação de "piscar" para dar o feedback de recarga.
+  pagina.classList.remove("piscar");
+  void pagina.offsetWidth; // força reflow para a animação rodar de novo
+  pagina.classList.add("piscar");
 }
 
 // Monta o HTML da Linha do Tempo a partir das partidas filtradas.
@@ -86,9 +126,9 @@ function montarLinhaDoTempo(idAtleta, partidas) {
 
       return `
         <li class="${venceu ? "venceu" : "perdeu"}">
+          <small>Rodada ${partida.rodada}</small><br />
           ${rotulo} contra <strong>${oponente.nome}</strong>
           — placar ${placar}
-          <small>(${partida.dataSimulada})</small>
         </li>`;
     })
     .join("");
