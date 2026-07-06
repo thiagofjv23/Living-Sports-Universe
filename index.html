@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Living Sports Universe</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header id="topo">
+      <h1>Living Sports Universe</h1>
+      <p>Uma enciclopédia viva de um universo esportivo simulado.</p>
+    </header>
+
+    <div id="layout">
+      <!-- Menu Lateral (esquerda): lista de atletas, preenchida via JS. -->
+      <nav id="menu-lateral">
+        <h2>Atletas</h2>
+        <ul id="lista-atletas"></ul>
+      </nav>
+
+      <!-- Página Principal (direita): a "Wikipédia" do atleta. -->
+      <main id="pagina-principal">
+        <p class="dica">← Selecione um atleta no menu para ver a página dele.</p>
+      </main>
+    </div>
+
+    <!--
+      Ordem de carregamento IMPORTANTE (dependências por variáveis globais):
+      Núcleo lógico primeiro, depois o módulo esportivo, e por fim a interface.
+    -->
+    <script src="js/core/fabricaRegens.js"></script>
+    <script src="js/modulos-esportivos/moduloBasico.js"></script>
+    <script src="js/core/eventBus.js"></script>
+    <script src="js/core/memoriaHistorica.js"></script>
+    <script src="js/core/gameLoop.js"></script>
+    <script src="js/ui/renderizador.js"></script>
+  </body>
+</html>
