@@ -5,6 +5,7 @@
 > Deve ser atualizado a cada novo passo concluído.
 >
 > Referência de regras do universo: [`LSU_DIRETRIZES.md`](./LSU_DIRETRIZES.md)
+> · Pendências a revisar: [`TODO.md`](./TODO.md)
 
 ---
 
