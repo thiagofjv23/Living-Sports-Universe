@@ -34,6 +34,7 @@ Living-Sports-Universe/
 └── js/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
+    │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (implementado)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -107,6 +108,22 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 6 (Fase 2) — Fábrica de Organizações
+- **Arquivo:** `js/core/fabricaOrganizacoes.js` (novo, no Núcleo).
+- **O que faz:** função `gerarOrganizacao()` que cria e retorna um objeto
+  "organização" fictícia.
+- **Objeto gerado:**
+  - `id` → `crypto.randomUUID()` (único)
+  - `nome` → sorteado de duas listas (`PREFIXOS_ORG` + `NOMES_ORG`)
+  - `reputacao` → inteiro aleatório de **1 a 100** (prestígio da instituição)
+- **Isolamento (Um Tijolo por Vez):** entidade **agnóstica** a esportes, **sem
+  ligação com atletas** e **sem** alteração de HTML/CSS. Arquivo ainda **não**
+  ligado ao `index.html` (por isso o `?v=` não mudou).
+- **Teste:** `console.log(gerarOrganizacao())` no fim do arquivo (inspeção).
+- **Nota:** helpers batizados `sortearInteiroOrg`/`sortearItemOrg` para manter o
+  arquivo autossuficiente e evitar colisão com os da Fábrica de Regens quando um
+  dia forem carregados juntos.
 
 ### ✅ Correção — Limpeza de estado na inicialização
 - **Arquivo:** `js/ui/renderizador.js` (função `iniciarMundo`).
