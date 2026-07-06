@@ -17,7 +17,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v6**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v7**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -106,6 +106,21 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Correção — Limpeza de estado na inicialização
+- **Arquivo:** `js/ui/renderizador.js` (função `iniciarMundo`).
+- **Bug:** ao reiniciar o mundo sem recarregar a página, resultados antigos se
+  misturavam com os novos atletas.
+- **Fix cirúrgico:** logo na 1ª linha de `iniciarMundo()`, um bloco de reset:
+  `memoriaHistorica.length = 0`, `rodadaAtual = 1`, `atletaSelecionadoId = null`,
+  e limpeza do HTML da lista de atletas e da página principal — **antes** de
+  `gerarMundo()`, para o universo nascer do zero.
+- **Detalhes:** usa `.length = 0` (a memória é `const`, então não pode ser
+  reatribuída) e limpa `#lista-atletas` (não o `#menu-lateral` inteiro, para não
+  apagar o botão "Avançar").
+- **Teste validado (headless):** antes do reinício 19 partidas/rodada 4 → depois
+  10 partidas/rodada 1, sem seleção, 6 atletas, página vazia, sem erros.
+- Cache: `?v=6` → `?v=7` (regra R2).
 
 ### ✅ Passo 5 — Ciclo de Tempo (Botão "Avançar 1 Rodada")
 - **Arquivos:** `index.html`, `css/style.css`, `js/core/gameLoop.js`,

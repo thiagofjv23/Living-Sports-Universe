@@ -24,6 +24,17 @@ let atletaSelecionadoId = null;
 // Ponto de entrada: cria o mundo (delegando a lógica ao Núcleo),
 // desenha o menu lateral, atualiza o relógio e liga o botão.
 function iniciarMundo() {
+  // --- LIMPEZA DE ESTADO: o universo nasce do zero absoluto. ---
+  // Precisa vir ANTES de gerarMundo() para não misturar mundo antigo
+  // com o novo. Usa .length = 0 (a memória é const: reesvazia o mesmo
+  // array, preservando o ouvinte já registrado no EventBus).
+  memoriaHistorica.length = 0; // zera a Memória Histórica
+  rodadaAtual = 1; // reinicia o relógio do universo
+  atletaSelecionadoId = null; // ninguém selecionado
+  document.getElementById("lista-atletas").innerHTML = ""; // limpa o menu
+  document.getElementById("pagina-principal").innerHTML = ""; // limpa a página
+  // -------------------------------------------------------------
+
   // gerarMundo() (gameLoop.js) gera 6 atletas, simula 10 partidas e
   // publica tudo no EventBus -> a memoriaHistorica é populada.
   atletasDoMundo = gerarMundo(6, 10);
