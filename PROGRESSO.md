@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v7**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v8**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -108,6 +108,25 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 7 (Fase 2) — Lógica Relacional (Atleta ↔ Organização)
+- **Arquivo:** `js/core/gameLoop.js` (Núcleo).
+- **Função nova:** `distribuirAtletasNasOrganizacoes(listaAtletas, listaOrganizacoes)`
+  — itera os atletas e, para cada um, sorteia uma organização e grava
+  `atleta.organizacaoId = organizacao.id`.
+- **Normalização (importante):** o atleta guarda **apenas o `organizacaoId`**
+  (a "chave estrangeira"), nunca o objeto inteiro da organização. Os dados da
+  organização continuam em um único lugar (a lista de organizações).
+- **Sem interface:** nenhuma alteração de HTML/CSS de comportamento; o vínculo é
+  só de dados no Núcleo.
+- **Teste (guardado):** bloco no fim do `gameLoop.js` sob
+  `if (typeof window === "undefined")` — roda no **Node** (gera 2 orgs + 6 atletas,
+  distribui e faz `console.log` dos atletas), mas fica **silencioso no navegador**
+  para não poluir/quebrar o app (as fábricas de org ainda não estão ligadas ao
+  `index.html`).
+- **Teste validado:** cada atleta recebeu `organizacaoId`; só aparecem os 2 ids
+  das 2 organizações; app no navegador segue sem erros.
+- Cache: `?v=7` → `?v=8` (regra R2, pois `gameLoop.js` mudou).
 
 ### ✅ Passo 6 (Fase 2) — Fábrica de Organizações
 - **Arquivo:** `js/core/fabricaOrganizacoes.js` (novo, no Núcleo).

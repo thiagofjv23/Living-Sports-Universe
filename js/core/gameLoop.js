@@ -71,3 +71,32 @@ function simularRodada(atletas) {
     simularConfronto(embaralhados[i], embaralhados[i + 1]);
   }
 }
+
+// Passo 7 — Lógica relacional: vincula cada atleta a uma organização.
+// NORMALIZAÇÃO: grava apenas o `organizacaoId` (o id da organização
+// sorteada), NUNCA o objeto inteiro da organização dentro do atleta.
+// Assim o atleta guarda só a "chave estrangeira", e os dados da
+// organização vivem em um único lugar (a lista de organizações).
+function distribuirAtletasNasOrganizacoes(listaAtletas, listaOrganizacoes) {
+  listaAtletas.forEach((atleta) => {
+    const organizacaoSorteada =
+      listaOrganizacoes[Math.floor(Math.random() * listaOrganizacoes.length)];
+    atleta.organizacaoId = organizacaoSorteada.id;
+  });
+  return listaAtletas;
+}
+
+// Teste isolado do Passo 7 — roda SÓ fora do navegador (ex.: Node).
+// No browser, `window` existe, então o bloco é ignorado: nada polui
+// o console do app nem quebra se as fábricas não estiverem ligadas.
+if (typeof window === "undefined") {
+  const organizacoesTeste = [gerarOrganizacao(), gerarOrganizacao()];
+
+  const atletasTeste = [];
+  for (let i = 0; i < 6; i++) {
+    atletasTeste.push(gerarAtleta());
+  }
+
+  distribuirAtletasNasOrganizacoes(atletasTeste, organizacoesTeste);
+  console.log(atletasTeste);
+}
