@@ -47,4 +47,19 @@ function iniciarOuvinteNoticias() {
     adicionarNoticiaUI(manchete);
     renderizarFeedNoticias();
   });
+
+  // Drama 3: um recorde histórico foi batido (o nome já vem no payload).
+  EventBus.on("NOVO_RECORDE_QUEBRADO", (payload) => {
+    let detalhe;
+    if (payload.tipo === "MAIOR_PONTUACAO") {
+      detalhe = `a maior pontuação de todos os tempos (${payload.valor})`;
+    } else if (payload.tipo === "MAIOR_DIFERENCA") {
+      detalhe = `a maior diferença de pontos da história (${payload.valor})`;
+    } else {
+      detalhe = `um novo recorde (${payload.valor})`;
+    }
+    const manchete = `HISTÓRICO! ${payload.nomeEquipe} acaba de bater ${detalhe}!`;
+    adicionarNoticiaUI(manchete);
+    renderizarFeedNoticias();
+  });
 }

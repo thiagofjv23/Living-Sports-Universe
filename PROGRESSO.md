@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v22**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v23**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -40,7 +40,8 @@ Living-Sports-Universe/
     │   ├── fabricaContratos.js         ← ✅ Passo 18 (só lógica, não ligado ao app)
     │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
     │   ├── ouvinteSaude.js             ← ✅ Passo 19 (só lógica, não ligado ao app)
-    │   ├── ouvinteContratos.js         ← ✅ Passo 20 (só lógica, não ligado ao app)
+    │   ├── ouvinteContratos.js         ← ✅ Passo 20 (ligado ao app no Passo 22)
+    │   ├── ouvinteRecordes.js          ← ✅ Passo 23 (Historiador, ligado ao app)
     │   ├── workerSimulacao.js          ← ✅ Passo 17 (Web Worker da história)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
@@ -118,6 +119,29 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 23 (Fase 3) — Ouvinte de Recordes (O Historiador)
+- **Arquivos:** `js/core/ouvinteRecordes.js` (novo), `js/ui/ouvinteNoticias.js`,
+  `js/ui/renderizador.js`, `index.html`.
+- **`avaliarRecordes(payload)`:** ouvinte de `PARTIDA_EQUIPES_FINALIZADA` que
+  compara com o registro interno e, se superado, emite **`NOVO_RECORDE_QUEBRADO`**
+  (`tipo`, `organizacaoId`, `nomeEquipe`, `valor`, `ano`). Dois recordes:
+  **MAIOR_PONTUACAO** e **MAIOR_DIFERENCA**.
+- **Semeadura (chave):** `iniciarOuvinteRecordes()` primeiro varre a
+  `memoriaHistorica` (as 150 partidas históricas do worker) para estabelecer os
+  recordes atuais — só então vigia o presente. Sem isso, a 1ª partida quebraria
+  tudo partindo de zero.
+- **Manchete:** `ouvinteNoticias` ganhou um 3º ouvinte (`NOVO_RECORDE_QUEBRADO`)
+  que gera "HISTÓRICO! {equipe} acaba de bater ...".
+- **Ligação:** `iniciarOuvinteRecordes()` chamado no `finalizarBigBang` (após a
+  história estar na memória).
+- **Decisão:** `NOVO_RECORDE_QUEBRADO` **não** é arquivado na memória (é derivado
+  das partidas; recomputável). O foco é a manchete, como pedido.
+- **Isolamento:** `ouvinteRecordes.js` é lógica pura (não toca DOM); fica no Núcleo.
+- **Teste validado:** Node (100 partidas → 8 recordes, decrescente); headless
+  (pontuação baixa não bate recorde; 999 bate os dois com manchete; 300 rodadas
+  reais sem spam; sem erros).
+- Cache: `?v=22` → `?v=23` (R2).
 
 ### ✅ Passo 22 (Fase 3) — Ouvinte de Notícias + GRANDE COSTURA da cadeia
 - **Arquivos:** `js/ui/ouvinteNoticias.js` (novo), `js/ui/renderizador.js`,

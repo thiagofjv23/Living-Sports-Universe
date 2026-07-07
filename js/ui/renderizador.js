@@ -148,6 +148,7 @@ function finalizarBigBang(competicao) {
   registrarOuvinteEstatisticas(temporada); // tabela de classificação
   registrarOuvinteSaude(atletasDoMundo); // lesões graves (Passo 19)
   registrarOuvinteContratos(contratosGlobais); // rescisões (Passo 20)
+  iniciarOuvinteRecordes(); // recordes históricos (Passo 23) — semeia da história
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
   desenharMenuLateral();
