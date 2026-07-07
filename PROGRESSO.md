@@ -37,6 +37,7 @@ Living-Sports-Universe/
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
     │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (só lógica, não ligado ao app)
+    │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (só lógica, não ligado ao app)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -110,6 +111,23 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 14 (Fase 2) — Ouvinte de Estatísticas (projeção da classificação)
+- **Arquivo:** `js/core/ouvinteEstatisticas.js` (novo, no Núcleo).
+- **Função pura:** `atualizarClassificacaoTemporada(payload, temporada)` — se o
+  `payload.tipoEvento === "PARTIDA_EQUIPES_FINALIZADA"`, extrai `vencedorId`/
+  `perdedorId`, faz `find` das linhas na `temporada.classificacao` e atualiza:
+  vencedor **+3 pontos / +1 vitória**, perdedor **+1 derrota**.
+- **Ligação ao EventBus:** `registrarOuvinteEstatisticas(temporada)` assina o
+  evento no barramento "amarrando" a temporada via **closure** (o EventBus só
+  entrega o payload; a closure fornece qual tabela atualizar).
+- **Arquitetura:** é uma **projeção** (read model) do Event Sourcing — escuta o
+  fato imutável e atualiza o resumo derivado. Não calcula partida nem desenha.
+- **Sem interface:** nenhuma alteração de HTML/CSS/renderizador (CQRS); arquivo
+  **não** ligado ao `index.html` (por isso o `?v=` não mudou).
+- **Teste (guardado, Node-only):** inscreve 2 equipes, gera temporada, zera a
+  tabela, registra o ouvinte, simula e emite → tabela atualiza sozinha.
+- **Teste validado:** vencedor `{pontos:3, vitorias:1}`, perdedor `{derrotas:1}`.
 
 ### ✅ Passo 13 (Fase 2) — Módulo Esportivo para duelos de Equipes
 - **Arquivo:** `js/modulos-esportivos/moduloBasico.js`.
