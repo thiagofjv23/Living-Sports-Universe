@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v17**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v18**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -114,6 +114,25 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Extra (Fase 3) — Calendário com Anos Reais
+- **Arquivos:** `js/core/gameLoop.js`, `js/core/workerSimulacao.js`,
+  `js/ui/renderizador.js`, `index.html`, `css/style.css`.
+- **Calendário no Núcleo:** `ANO_PRESENTE = 2026`, `ANOS_DE_HISTORIA = 50`,
+  `let anoAtual = 2026`. A história prévia roda **1976..2025** (sequencial).
+- **Carimbo de ano no fato:** cada `PARTIDA_EQUIPES_FINALIZADA` ganha
+  `resultado.ano` (worker, fallback e presente). Prepara rastreamento temporal de
+  carreiras/contratos e recordes por época.
+- **Interface dinâmica:** cabeçalho "Temporada **2026** · Rodada N"; página da
+  competição com subtítulo "Temporada 2026" e tabela "Classificação — Temporada
+  2026" (lê `temporada.ano`).
+- **Badge de metadados** (rodapé do menu): "🏛️ Universo Ativo: História simulada
+  desde 1976 ({memoriaHistorica.length} fatos arquivados)" — atualiza ao avançar.
+- **Progresso do worker** passou a mostrar o ano real: "Construindo o universo...
+  Temporada 1987 (12/50)".
+- **Teste validado (headless/http):** header e badge corretos; 150 fatos com
+  anos 1976–2025; presente = 2026; badge cresce ao avançar; sem erros.
+- Cache: `?v=17` → `?v=18` (R2).
 
 ### ✅ Passo 17 (Fase 3) — Web Worker + Indicador de Progresso
 - **Arquivos:** `js/core/workerSimulacao.js` (novo), `js/ui/renderizador.js`,

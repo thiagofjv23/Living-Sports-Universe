@@ -13,7 +13,12 @@
 //   fabricaRegens.js -> moduloBasico.js -> eventBus.js -> memoriaHistorica.js
 // =============================================================
 
-// Relógio do universo: em que rodada o mundo está agora.
+// Calendário do universo (anos reais).
+const ANO_PRESENTE = 2026; // ano do presente jogável
+const ANOS_DE_HISTORIA = 50; // anos de passado pré-simulado (1976..2025)
+let anoAtual = ANO_PRESENTE; // ano corrente exibido na interface
+
+// Relógio do universo: em que rodada do ano atual o mundo está.
 let rodadaAtual = 1;
 
 // Sorteia um atleta qualquer de uma lista.
@@ -103,15 +108,18 @@ function simularHistoriaPrevia(quantidadeAnos, competicao, organizacoes, anoInic
     .map((id) => organizacoes.find((org) => org.id === id))
     .filter((org) => org);
 
-  for (let ano = 0; ano < quantidadeAnos; ano++) {
+  for (let indice = 0; indice < quantidadeAnos; indice++) {
+    const anoReal = primeiroAno + indice; // ano cronológico (ex.: 1976, 1977...)
+
     // 1) Nova temporada do ano + tabela inicial (inscrição das equipes).
-    const temporada = gerarTemporada(competicao.id, primeiroAno + ano);
+    const temporada = gerarTemporada(competicao.id, anoReal);
     iniciarClassificacaoTemporada(temporada, competicao);
 
     // 2) Round-robin (todos contra todos) para "fechar" a temporada.
     for (let i = 0; i < equipes.length; i++) {
       for (let j = i + 1; j < equipes.length; j++) {
         const resultado = simularPartidaEquipes(equipes[i], equipes[j]);
+        resultado.ano = anoReal; // carimba o ANO real no fato (rastro temporal)
         // Passa pelo EventBus -> arquiva o fato na Memória Histórica.
         EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
       }
@@ -146,6 +154,7 @@ function simularRodadaCompeticao(competicao, organizacoes) {
   // Forma duplas consecutivas, simula e publica cada confronto.
   for (let i = 0; i + 1 < embaralhadas.length; i += 2) {
     const resultado = simularPartidaEquipes(embaralhadas[i], embaralhadas[i + 1]);
+    resultado.ano = anoAtual; // carimba o ANO do presente no fato
     EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
   }
 }

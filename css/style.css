@@ -172,6 +172,23 @@ body {
   font-style: italic;
 }
 
+/* Badge de metadados discreto no rodapé do menu lateral. */
+#badge-metadados {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #c8ccd1;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #72777d;
+}
+
+/* Subtítulo (ex.: "Temporada 2026" abaixo do nome da competição). */
+.subtitulo {
+  margin: -6px 0 12px;
+  color: #54595d;
+  font-size: 14px;
+}
+
 /* Tela de carregamento (história pré-simulada em background). */
 #tela-carregando {
   display: flex;

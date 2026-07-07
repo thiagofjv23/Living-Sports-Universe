@@ -23,25 +23,34 @@ importScripts(
 
 // Recebe as entidades da main thread e roda a simulação pesada.
 self.onmessage = function (evento) {
-  const { competicao, organizacoes, totalAnos } = evento.data;
+  const { competicao, organizacoes, totalAnos, anoInicial } = evento.data;
+  const primeiroAno = anoInicial || 1;
 
   // Resolve os IDs dos participantes -> objetos de organização.
   const equipes = competicao.participantes
     .map((id) => organizacoes.find((org) => org.id === id))
     .filter((org) => org);
 
-  for (let ano = 1; ano <= totalAnos; ano++) {
+  for (let indice = 0; indice < totalAnos; indice++) {
+    const anoReal = primeiroAno + indice; // ano cronológico (1976, 1977...)
+
     // Round-robin (todos contra todos) para "fechar" a temporada.
     for (let i = 0; i < equipes.length; i++) {
       for (let j = i + 1; j < equipes.length; j++) {
         const resultado = simularPartidaEquipes(equipes[i], equipes[j]);
+        resultado.ano = anoReal; // carimba o ANO real no fato (rastro temporal)
         // Passa pelo EventBus do worker -> arquiva na memoriaHistorica.
         EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
       }
     }
 
-    // O RÁDIO: avisa a main thread do progresso a cada ano concluído.
-    self.postMessage({ tipo: "progresso", anoAtual: ano, totalAnos: totalAnos });
+    // O RÁDIO: avisa a main thread do progresso (ano real + índice).
+    self.postMessage({
+      tipo: "progresso",
+      anoSimulado: anoReal,
+      indice: indice + 1,
+      total: totalAnos,
+    });
   }
 
   // Pacote final: entrega todos os fatos arquivados à main thread.

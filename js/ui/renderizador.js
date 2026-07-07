@@ -62,18 +62,23 @@ function iniciarMundo() {
   mostrarCarregando("Construindo o universo...");
 
   // A REGRA DO ANO 50, agora FORA da main thread (Web Worker): simula
-  // 50 temporadas passadas com feedback de progresso. Quando terminar,
-  // monta a temporada atual e desenha a interface — uma única vez.
-  simularHistoriaEmBackground(competicao, organizacoesDoMundo, 50, () => {
-    finalizarBigBang(competicao);
-  });
+  // as temporadas passadas (1976..2025) com feedback de progresso.
+  // Quando terminar, monta a temporada atual e desenha — uma única vez.
+  const anoInicialHistoria = ANO_PRESENTE - ANOS_DE_HISTORIA; // 1976
+  simularHistoriaEmBackground(
+    competicao,
+    organizacoesDoMundo,
+    ANOS_DE_HISTORIA,
+    anoInicialHistoria,
+    () => finalizarBigBang(competicao)
+  );
 }
 
 // Dispara a simulação pesada em background. Tenta usar um Web Worker
 // (main thread livre + progresso); se o Worker não estiver disponível
 // (ex.: abrir o arquivo via file://), cai num fallback SÍNCRONO para o
 // app nunca ficar preso na tela de loading.
-function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, aoConcluir) {
+function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, anoInicial, aoConcluir) {
   let worker = null;
   try {
     worker = new Worker("js/core/workerSimulacao.js?v=" + versaoAssets());
@@ -84,7 +89,7 @@ function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, aoConc
   // Fallback: sem Worker, roda a versão síncrona do Núcleo e conclui.
   if (!worker) {
     atualizarCarregando("Construindo o universo... (modo simples)");
-    simularHistoriaPrevia(totalAnos, competicao, organizacoes);
+    simularHistoriaPrevia(totalAnos, competicao, organizacoes, anoInicial);
     aoConcluir();
     return;
   }
@@ -93,7 +98,7 @@ function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, aoConc
     const mensagem = evento.data;
     if (mensagem.tipo === "progresso") {
       atualizarCarregando(
-        `Construindo o universo... Ano ${mensagem.anoAtual} de ${mensagem.totalAnos}`
+        `Construindo o universo... Temporada ${mensagem.anoSimulado} (${mensagem.indice}/${mensagem.total})`
       );
     } else if (mensagem.tipo === "concluido") {
       // Traz os fatos gerados no worker para a Memória Histórica local.
@@ -106,30 +111,39 @@ function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, aoConc
   // Se o worker falhar em tempo de execução, também cai no fallback.
   worker.onerror = () => {
     worker.terminate();
-    simularHistoriaPrevia(totalAnos, competicao, organizacoes);
+    simularHistoriaPrevia(totalAnos, competicao, organizacoes, anoInicial);
     aoConcluir();
   };
 
-  worker.postMessage({ competicao, organizacoes, totalAnos });
+  worker.postMessage({ competicao, organizacoes, totalAnos, anoInicial });
 }
 
 // Finaliza o "Big Bang": cria a temporada atual, registra o ouvinte de
 // estatísticas, remove o loading e desenha a Wikipédia (render único).
 function finalizarBigBang(competicao) {
-  // Temporada ATUAL com tabela zerada. O ouvinte é registrado só agora,
-  // depois da história, para o passado não somar pontos no presente.
-  const temporada = gerarTemporada(competicao.id, 2024);
+  // Temporada ATUAL (presente = ANO_PRESENTE) com tabela zerada. O
+  // ouvinte é registrado só agora, depois da história, para o passado
+  // não somar pontos no presente.
+  const temporada = gerarTemporada(competicao.id, anoAtual);
   iniciarClassificacaoTemporada(temporada, competicao);
   registrarOuvinteEstatisticas(temporada);
   temporadasGlobais = [temporada];
 
   desenharMenuLateral();
-  atualizarDisplayRodada();
+  atualizarDisplayTempo();
+  atualizarBadgeMetadados();
   document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
 
   // Remove o loading e mostra a dica inicial.
   document.getElementById("pagina-principal").innerHTML =
     '<p class="dica">← Selecione um item no menu para explorar o universo.</p>';
+}
+
+// Badge discreto no menu: cronologia do universo + volume de fatos.
+function atualizarBadgeMetadados() {
+  const anoInicioHistoria = ANO_PRESENTE - ANOS_DE_HISTORIA; // 1976
+  document.getElementById("badge-metadados").textContent =
+    `🏛️ Universo Ativo: História simulada desde ${anoInicioHistoria} (${memoriaHistorica.length} fatos arquivados)`;
 }
 
 // Mostra a tela de carregamento (texto central) na área principal.
@@ -168,7 +182,8 @@ function avancarTempo() {
     simularRodadaCompeticao(competicao, organizacoesDoMundo);
   }
 
-  atualizarDisplayRodada();
+  atualizarDisplayTempo();
+  atualizarBadgeMetadados(); // o volume de fatos cresce a cada rodada
 
   // A MÁGICA DA REATIVIDADE: recarrega a tela atual (qualquer que
   // seja) para refletir os novos dados — ex.: a tabela do campeonato.
@@ -177,8 +192,9 @@ function avancarTempo() {
   }
 }
 
-// Escreve a rodada atual no topo da página (leitura de rodadaAtual).
-function atualizarDisplayRodada() {
+// Escreve o ANO (temporada) e a rodada atual no topo da página.
+function atualizarDisplayTempo() {
+  document.getElementById("ano-atual").textContent = anoAtual;
   document.getElementById("rodada-atual").textContent = rodadaAtual;
 }
 
@@ -288,30 +304,34 @@ function abrirPaginaCompeticao(idCompeticao) {
   // a tabela de classificação se atualiza sozinha na tela.
   recarregarPaginaAtual = () => abrirPaginaCompeticao(idCompeticao);
 
+  // Acha a temporada ativa uma vez, para exibir o ANO real na página.
+  const temporada = temporadasGlobais.find(
+    (t) => t.competicaoId === competicao.id
+  );
+  const anoTexto = temporada ? temporada.ano : "—";
+
   const pagina = document.getElementById("pagina-principal");
   pagina.innerHTML = `
     <h2>${competicao.nome}</h2>
+    <p class="subtitulo">Temporada ${anoTexto}</p>
     <ul class="ficha">
       <li><strong>Reputação:</strong> ${competicao.reputacao} / 100</li>
     </ul>
     <h3>Equipes Participantes (${competicao.participantes.length})</h3>
     ${montarParticipantes(competicao.participantes)}
-    <h3>Classificação da Temporada Atual</h3>
-    ${montarTabelaClassificacao(competicao)}
+    <h3>Classificação — Temporada ${anoTexto}</h3>
+    ${montarTabelaClassificacao(temporada)}
   `;
 
   ligarLinksInternos(pagina);
   aplicarPiscada(pagina);
 }
 
-// Monta a tabela de classificação da temporada ativa de uma competição.
+// Monta a tabela de classificação de uma temporada.
 // LEITURA CRUZADA (CQRS): ordena uma CÓPIA da classificacao (sem mutar)
 // e, para cada linha, resolve o organizacaoId -> nome real na lista
 // global de organizações. O nome vira link para a página da equipe.
-function montarTabelaClassificacao(competicao) {
-  const temporada = temporadasGlobais.find(
-    (t) => t.competicaoId === competicao.id
-  );
+function montarTabelaClassificacao(temporada) {
   if (!temporada || temporada.classificacao.length === 0) {
     return "<p><em>Nenhuma temporada ativa para esta competição.</em></p>";
   }
