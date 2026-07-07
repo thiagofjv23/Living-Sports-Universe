@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v9**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v10**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -35,7 +35,7 @@ Living-Sports-Universe/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
-    │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (só lógica, não ligado ao app)
+    │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -109,6 +109,24 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 10 (Fase 2) — Inscrição + Wikipédia das Competições
+- **Arquivos:** `index.html`, `css/style.css`, `js/core/gameLoop.js`,
+  `js/ui/renderizador.js` (+ `fabricaCompeticoes.js` ligada ao `index.html`).
+- **Núcleo:** `inscreverEquipesNaCompeticao(listaOrganizacoes, competicao)` — dá
+  `push` apenas dos **IDs** das organizações em `competicao.participantes`.
+- **`iniciarMundo()`:** além de orgs+atletas, gera **1 competição**, inscreve
+  todas as organizações e guarda em `competicoesGlobais = [competicao]`.
+- **Menu:** nova seção **Competições** no topo (`#lista-competicoes`), clicável.
+- **Página da competição (nova):** `abrirPaginaCompeticao(id)` mostra nome +
+  reputação e **Equipes Participantes** — loop pelos IDs de `participantes`,
+  busca cada organização e a exibe como link → `abrirPaginaOrganizacao(id)`.
+- **Navegação profunda:** Competição → Equipe → Atleta, tudo por referência (IDs).
+- **CQRS:** só leitura/`find`; nada é duplicado nem alterado.
+- **Teste validado (headless):** 1 comp / 12 atletas / 3 orgs; navegação completa;
+  `participantes` guarda 3 IDs-string válidos; atleta final pertence à equipe
+  aberta; sem erros.
+- Cache: `?v=9` → `?v=10` (R2).
 
 ### ✅ Passo 9 (Fase 2) — Fábrica de Competições
 - **Arquivo:** `js/core/fabricaCompeticoes.js` (novo, no Núcleo).

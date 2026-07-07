@@ -15,6 +15,7 @@
 // FATOS continua na memoriaHistorica).
 let atletasDoMundo = [];
 let organizacoesDoMundo = [];
+let competicoesGlobais = [];
 
 // Estado da INTERFACE: qual atleta o usuário está visualizando.
 // null = nenhuma página de atleta aberta (usado no re-render reativo).
@@ -27,6 +28,7 @@ function iniciarMundo() {
   memoriaHistorica.length = 0; // zera a Memória Histórica
   rodadaAtual = 1; // reinicia o relógio do universo
   atletaSelecionadoId = null; // ninguém selecionado
+  document.getElementById("lista-competicoes").innerHTML = "";
   document.getElementById("lista-atletas").innerHTML = "";
   document.getElementById("lista-organizacoes").innerHTML = "";
   document.getElementById("pagina-principal").innerHTML = "";
@@ -45,6 +47,12 @@ function iniciarMundo() {
 
   // Conecta cada atleta a uma organização (grava só o organizacaoId).
   distribuirAtletasNasOrganizacoes(atletasDoMundo, organizacoesDoMundo);
+
+  // Gera 1 competição e inscreve TODAS as organizações nela
+  // (guarda só os IDs das equipes em competicao.participantes).
+  const competicao = gerarCompeticao();
+  inscreverEquipesNaCompeticao(organizacoesDoMundo, competicao);
+  competicoesGlobais = [competicao];
 
   desenharMenuLateral();
   atualizarDisplayRodada();
@@ -71,8 +79,17 @@ function atualizarDisplayRodada() {
   document.getElementById("rodada-atual").textContent = rodadaAtual;
 }
 
-// Desenha as duas seções clicáveis do menu: Atletas e Organizações.
+// Desenha as seções clicáveis do menu: Competições, Atletas e Organizações.
 function desenharMenuLateral() {
+  const listaCompeticoes = document.getElementById("lista-competicoes");
+  listaCompeticoes.innerHTML = "";
+  competicoesGlobais.forEach((competicao) => {
+    const item = document.createElement("li");
+    item.textContent = competicao.nome;
+    item.addEventListener("click", () => abrirPaginaCompeticao(competicao.id));
+    listaCompeticoes.appendChild(item);
+  });
+
   const listaAtletas = document.getElementById("lista-atletas");
   listaAtletas.innerHTML = "";
   atletasDoMundo.forEach((atleta) => {
@@ -158,6 +175,50 @@ function abrirPaginaOrganizacao(idOrganizacao) {
 
   ligarLinksInternos(pagina);
   aplicarPiscada(pagina);
+}
+
+// Abre a "página" de uma competição, com ficha e Equipes Participantes.
+function abrirPaginaCompeticao(idCompeticao) {
+  const competicao = competicoesGlobais.find((c) => c.id === idCompeticao);
+  if (!competicao) return;
+
+  // Não é página de atleta: zera a seleção (evita "pulo" ao avançar).
+  atletaSelecionadoId = null;
+
+  const pagina = document.getElementById("pagina-principal");
+  pagina.innerHTML = `
+    <h2>${competicao.nome}</h2>
+    <ul class="ficha">
+      <li><strong>Reputação:</strong> ${competicao.reputacao} / 100</li>
+    </ul>
+    <h3>Equipes Participantes (${competicao.participantes.length})</h3>
+    ${montarParticipantes(competicao.participantes)}
+  `;
+
+  ligarLinksInternos(pagina);
+  aplicarPiscada(pagina);
+}
+
+// Monta o HTML das Equipes Participantes de uma competição. Recebe
+// uma lista de IDs de organização e, para cada um, busca a org na
+// lista global (navegação profunda por referência — sem duplicar).
+function montarParticipantes(idsOrganizacoes) {
+  if (idsOrganizacoes.length === 0) {
+    return "<p><em>Nenhuma equipe inscrita ainda.</em></p>";
+  }
+
+  const itens = idsOrganizacoes
+    .map((idOrg) => {
+      const organizacao = organizacoesDoMundo.find((o) => o.id === idOrg);
+      const nomeOrg = organizacao ? organizacao.nome : "Equipe desconhecida";
+      return `
+        <li>
+          <a href="#" class="link-interno" data-org-id="${idOrg}">${nomeOrg}</a>
+        </li>`;
+    })
+    .join("");
+
+  return `<ul class="elenco">${itens}</ul>`;
 }
 
 // Monta o HTML do Elenco (lista de atletas clicáveis) de uma org.

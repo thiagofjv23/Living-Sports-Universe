@@ -86,6 +86,16 @@ function distribuirAtletasNasOrganizacoes(listaAtletas, listaOrganizacoes) {
   return listaAtletas;
 }
 
+// Passo 10 — Inscrição: registra organizações numa competição.
+// NORMALIZAÇÃO: empurra apenas os IDs das organizações para dentro
+// de competicao.participantes, nunca os objetos inteiros.
+function inscreverEquipesNaCompeticao(listaOrganizacoes, competicao) {
+  listaOrganizacoes.forEach((organizacao) => {
+    competicao.participantes.push(organizacao.id);
+  });
+  return competicao;
+}
+
 // Teste isolado do Passo 7 — roda SÓ fora do navegador (ex.: Node).
 // No browser, `window` existe, então o bloco é ignorado: nada polui
 // o console do app nem quebra se as fábricas não estiverem ligadas.

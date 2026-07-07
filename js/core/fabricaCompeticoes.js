@@ -32,7 +32,3 @@ function gerarCompeticao() {
     historicoTemporadas: [], // IDs/edições anuais, conectados depois
   };
 }
-
-// Teste rápido: roda a função e imprime a competição gerada no
-// console (arquivo ainda não ligado ao index.html).
-console.log(gerarCompeticao());
