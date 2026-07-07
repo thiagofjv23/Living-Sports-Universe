@@ -179,8 +179,11 @@ function iniciarClassificacaoTemporada(temporada, competicao) {
     temporada.classificacao.push({
       organizacaoId: organizacaoId,
       pontos: 0,
+      jogos: 0,
       vitorias: 0,
+      empates: 0,
       derrotas: 0,
+      saldoPontos: 0,
     });
   });
   return temporada.classificacao;

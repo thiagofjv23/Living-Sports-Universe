@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v23**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v24**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -38,7 +38,8 @@ Living-Sports-Universe/
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
     │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (ligado ao app no Passo 15)
     │   ├── fabricaContratos.js         ← ✅ Passo 18 (só lógica, não ligado ao app)
-    │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
+    │   ├── ouvinteEstatisticas.js      ← ⚠️ Passo 14 (aposentado no Passo 24)
+    │   ├── ouvinteClassificacao.js     ← ✅ Passo 24 (tabela viva 3/1/0)
     │   ├── ouvinteSaude.js             ← ✅ Passo 19 (só lógica, não ligado ao app)
     │   ├── ouvinteContratos.js         ← ✅ Passo 20 (ligado ao app no Passo 22)
     │   ├── ouvinteRecordes.js          ← ✅ Passo 23 (Historiador, ligado ao app)
@@ -119,6 +120,25 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 24 (Fase 3) — Ouvinte de Classificação (A Tabela Viva)
+- **Arquivos:** `js/core/ouvinteClassificacao.js` (novo), `js/core/gameLoop.js`,
+  `js/ui/renderizador.js`, `index.html`.
+- **`avaliarClassificacao(payload)`:** ouvinte de `PARTIDA_EQUIPES_FINALIZADA`.
+  Acha vencedor/perdedor na `classificacao` e aplica **3/1/0**: incrementa
+  `jogos`, `vitorias`/`empates`/`derrotas`, `pontos` e `saldoPontos`. Ao fim,
+  emite **`TABELA_CLASSIFICACAO_ATUALIZADA`**.
+- **Estrutura da linha estendida** (`iniciarClassificacaoTemporada`):
+  `{organizacaoId, pontos, jogos, vitorias, empates, derrotas, saldoPontos}`.
+- **Substitui o ouvinteEstatisticas (Passo 14):** para evitar **contagem dobrada**,
+  o antigo deixou de ser registrado; o novo é registrado no `finalizarBigBang`
+  via `iniciarOuvinteClassificacao(temporada)`.
+- **CQRS rígido:** processador de regras de negócio; **não** toca DOM. O `empate`
+  é ramo defensivo (o módulo sempre desempata hoje).
+- **Teste validado:** Node (10 partidas → 10 eventos, jogos=20, pontos=30,
+  saldo=0); headless (30 rodadas → 30 eventos, `pontos==V*3` sem dobrar,
+  `jogos==V+E+D`, saldo=0, tabela na tela >0; sem erros).
+- Cache: `?v=23` → `?v=24` (R2).
 
 ### ✅ Passo 23 (Fase 3) — Ouvinte de Recordes (O Historiador)
 - **Arquivos:** `js/core/ouvinteRecordes.js` (novo), `js/ui/ouvinteNoticias.js`,

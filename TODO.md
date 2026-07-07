@@ -67,6 +67,14 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
     via `importScripts` no worker e `<script>` no fallback, se a duplicação
     incomodar. Hoje é pequena e aceitável.
 
+- [ ] 🟢 **`ouvinteEstatisticas.js` foi aposentado (Passo 24)**
+  - **Contexto:** o `ouvinteClassificacao.js` (Passo 24) substituiu o
+    `ouvinteEstatisticas.js` (Passo 14) — faz tudo o que ele fazia e mais (jogos,
+    empates, saldo, evento `TABELA_CLASSIFICACAO_ATUALIZADA`). O antigo **não é
+    mais registrado**, mas ainda é carregado no `index.html` (inerte).
+  - **O que fazer:** remover `ouvinteEstatisticas.js` do `index.html` (e o arquivo)
+    quando tiver certeza de que não será reaproveitado.
+
 ## Decisões de Design em Aberto
 
 - [ ] 🟡 **Regra de desempate da partida (R1)**

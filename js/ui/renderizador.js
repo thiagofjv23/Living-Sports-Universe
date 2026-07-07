@@ -145,7 +145,7 @@ function finalizarBigBang(competicao) {
   // Registra os ouvintes do PRESENTE (reagem aos jogos do "Avançar").
   // Ordem não importa: todos escutam o mesmo barramento de forma
   // independente (Pub/Sub).
-  registrarOuvinteEstatisticas(temporada); // tabela de classificação
+  iniciarOuvinteClassificacao(temporada); // tabela viva 3/1/0 (Passo 24)
   registrarOuvinteSaude(atletasDoMundo); // lesões graves (Passo 19)
   registrarOuvinteContratos(contratosGlobais); // rescisões (Passo 20)
   iniciarOuvinteRecordes(); // recordes históricos (Passo 23) — semeia da história
