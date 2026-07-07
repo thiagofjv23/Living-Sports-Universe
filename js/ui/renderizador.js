@@ -18,9 +18,11 @@ let organizacoesDoMundo = [];
 let competicoesGlobais = [];
 let temporadasGlobais = [];
 
-// Estado da INTERFACE: qual atleta o usuário está visualizando.
-// null = nenhuma página de atleta aberta (usado no re-render reativo).
-let atletaSelecionadoId = null;
+// Estado da INTERFACE: uma função que sabe redesenhar a página que
+// está aberta agora. Cada abrirPaginaX() a define. Assim, ao avançar
+// o tempo, recarregamos a tela atual (seja ela de atleta, organização
+// ou competição) para refletir os novos dados. null = nada aberto.
+let recarregarPaginaAtual = null;
 
 // Ponto de entrada: cria o mundo (chamando o Núcleo), conecta as
 // entidades e desenha o menu lateral.
@@ -28,7 +30,7 @@ function iniciarMundo() {
   // --- LIMPEZA DE ESTADO: o universo nasce do zero absoluto. ---
   memoriaHistorica.length = 0; // zera a Memória Histórica
   rodadaAtual = 1; // reinicia o relógio do universo
-  atletaSelecionadoId = null; // ninguém selecionado
+  recarregarPaginaAtual = null; // nenhuma página aberta
   document.getElementById("lista-competicoes").innerHTML = "";
   document.getElementById("lista-atletas").innerHTML = "";
   document.getElementById("lista-organizacoes").innerHTML = "";
@@ -70,16 +72,23 @@ function iniciarMundo() {
   document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
 }
 
-// Avança o tempo: pede ao Núcleo para simular uma nova rodada e,
-// em seguida, sincroniza a interface com o novo estado do mundo.
+// Avança o tempo: simula uma rodada da COMPETIÇÃO ativa (no Núcleo)
+// e, em seguida, sincroniza a interface com o novo estado do mundo.
 function avancarTempo() {
-  simularRodada(atletasDoMundo);
+  // Simulação da rodada de EQUIPES (lógica + emit) vive no Núcleo —
+  // sem DOM aqui. O ouvinte de estatísticas projeta os resultados na
+  // classificação da temporada automaticamente.
+  const competicao = competicoesGlobais[0];
+  if (competicao) {
+    simularRodadaCompeticao(competicao, organizacoesDoMundo);
+  }
+
   atualizarDisplayRodada();
 
-  // A MÁGICA DA REATIVIDADE: se há um atleta aberto, recarrega a
-  // página dele com as partidas recém-geradas.
-  if (atletaSelecionadoId) {
-    abrirPaginaAtleta(atletaSelecionadoId);
+  // A MÁGICA DA REATIVIDADE: recarrega a tela atual (qualquer que
+  // seja) para refletir os novos dados — ex.: a tabela do campeonato.
+  if (recarregarPaginaAtual) {
+    recarregarPaginaAtual();
   }
 }
 
@@ -123,8 +132,8 @@ function abrirPaginaAtleta(idAtleta) {
   const atleta = atletasDoMundo.find((a) => a.id === idAtleta);
   if (!atleta) return;
 
-  // Guarda quem está sendo visto (para o re-render reativo do tempo).
-  atletaSelecionadoId = idAtleta;
+  // Registra como recarregar ESTA página (re-render reativo do tempo).
+  recarregarPaginaAtual = () => abrirPaginaAtleta(idAtleta);
 
   // Relação por ID: acha a organização do atleta pelo organizacaoId.
   const organizacao = organizacoesDoMundo.find(
@@ -162,9 +171,8 @@ function abrirPaginaOrganizacao(idOrganizacao) {
   const organizacao = organizacoesDoMundo.find((o) => o.id === idOrganizacao);
   if (!organizacao) return;
 
-  // Saímos da página de um atleta: zera a seleção para o avançar do
-  // tempo não "pular" de volta para um atleta enquanto vemos a org.
-  atletaSelecionadoId = null;
+  // Registra como recarregar ESTA página no re-render reativo.
+  recarregarPaginaAtual = () => abrirPaginaOrganizacao(idOrganizacao);
 
   // A MÁGICA RELACIONAL: o Elenco é a leitura pura (filter) dos
   // atletas cujo organizacaoId aponta para esta organização.
@@ -191,8 +199,9 @@ function abrirPaginaCompeticao(idCompeticao) {
   const competicao = competicoesGlobais.find((c) => c.id === idCompeticao);
   if (!competicao) return;
 
-  // Não é página de atleta: zera a seleção (evita "pulo" ao avançar).
-  atletaSelecionadoId = null;
+  // Registra como recarregar ESTA página — assim, ao avançar o tempo,
+  // a tabela de classificação se atualiza sozinha na tela.
+  recarregarPaginaAtual = () => abrirPaginaCompeticao(idCompeticao);
 
   const pagina = document.getElementById("pagina-principal");
   pagina.innerHTML = `

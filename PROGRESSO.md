@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v13**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v14**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -111,6 +111,27 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 15.5 (Fase 2) — Game Loop de Equipes (o "Avançar" alimenta a tabela)
+- **Arquivos:** `js/core/gameLoop.js`, `js/ui/renderizador.js`, `index.html`.
+- **Núcleo:** `simularRodadaCompeticao(competicao, organizacoes)` — resolve os IDs
+  de `participantes` → objetos, embaralha em duplas (Fisher–Yates), simula cada
+  confronto com `simularPartidaEquipes()` e emite `PARTIDA_EQUIPES_FINALIZADA`.
+  Incrementa `rodadaAtual`. Sem DOM.
+- **`avancarTempo()` (UI):** deixou de simular atletas soltos; agora chama
+  `simularRodadaCompeticao()` da competição ativa. O ouvinte de estatísticas
+  projeta os resultados na classificação automaticamente.
+- **Reatividade generalizada:** trocado o `atletaSelecionadoId` por
+  `recarregarPaginaAtual` (uma função-closure que cada `abrirPaginaX` define).
+  Assim, ao avançar, a **tela atual** (inclusive a tabela da competição) se
+  recarrega sozinha — não só páginas de atleta.
+- **Consequência:** as Linhas do Tempo individuais dos atletas não crescem mais
+  no "Avançar" (a simulação agora é de equipes). Resolve o item do TODO.
+- **Teste validado (headless):** competição aberta, 5× "Avançar" sem sair da
+  página → rodada 1→6, tabela enche sozinha, ordenada, `pontos==V*3`,
+  `totalV==totalD`; sem erros.
+- **Fix:** removido um backtick extra acidental em `abrirPaginaCompeticao`.
+- Cache: `?v=13` → `?v=14` (R2).
 
 ### ✅ Passo 15 (Fase 2) — Gerador Visual da Tabela de Classificação
 - **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`

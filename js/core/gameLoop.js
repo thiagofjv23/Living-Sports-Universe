@@ -86,6 +86,33 @@ function distribuirAtletasNasOrganizacoes(listaAtletas, listaOrganizacoes) {
   return listaAtletas;
 }
 
+// Passo 15.5 — Simula UMA rodada da competição: forma duplas
+// aleatórias entre as EQUIPES participantes e emite o resultado de
+// cada confronto no EventBus (o ouvinte de estatísticas projeta na
+// classificação). Sem DOM aqui. Incrementa o relógio do universo.
+// Se o número de equipes for ímpar, uma folga na rodada (bye).
+function simularRodadaCompeticao(competicao, organizacoes) {
+  rodadaAtual++;
+
+  // Resolve os IDs dos participantes -> objetos de organização.
+  const equipes = competicao.participantes
+    .map((id) => organizacoes.find((org) => org.id === id))
+    .filter((org) => org);
+
+  // Cópia embaralhada (Fisher–Yates) para formar duplas aleatórias.
+  const embaralhadas = [...equipes];
+  for (let i = embaralhadas.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [embaralhadas[i], embaralhadas[j]] = [embaralhadas[j], embaralhadas[i]];
+  }
+
+  // Forma duplas consecutivas, simula e publica cada confronto.
+  for (let i = 0; i + 1 < embaralhadas.length; i += 2) {
+    const resultado = simularPartidaEquipes(embaralhadas[i], embaralhadas[i + 1]);
+    EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
+  }
+}
+
 // Passo 10 — Inscrição: registra organizações numa competição.
 // NORMALIZAÇÃO: empurra apenas os IDs das organizações para dentro
 // de competicao.participantes, nunca os objetos inteiros.

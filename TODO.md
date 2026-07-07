@@ -33,13 +33,13 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   - **O que fazer:** ao reiniciar, resetar o `EventBus` (ex.: `EventBus.ouvintes = {}`
     e re-registrar os ouvintes) ou registrar os ouvintes fora de `iniciarMundo()`.
 
-- [ ] 🟢 **Integrar simulação de partidas de EQUIPE ao Game Loop ("Avançar")**
-  - **Arquivos:** `js/core/gameLoop.js` + `js/ui/renderizador.js` (`avancarTempo`).
-  - **Contexto:** hoje "Avançar" simula só partidas de ATLETAS. A tabela de
-    classificação (Passo 15) só enche via eventos disparados no console.
-  - **O que fazer:** criar no Núcleo uma `simularRodadaCompeticao(temporada,
-    competicao, organizacoes)` que emite `PARTIDA_EQUIPES_FINALIZADA` (sem DOM),
-    chamada pelo `avancarTempo`, e empurrar os IDs dos jogos em `temporada.jogos`.
+- [x] 🟢 **Integrar simulação de partidas de EQUIPE ao Game Loop ("Avançar")**
+  ✅ **Feito no Passo 15.5:** `simularRodadaCompeticao(competicao, organizacoes)`
+  no `gameLoop.js` (emite `PARTIDA_EQUIPES_FINALIZADA` sem DOM), chamada pelo
+  `avancarTempo`. A tabela agora enche ao clicar "Avançar".
+  - **Pendência menor restante:** ainda **não** empurramos os IDs dos jogos em
+    `temporada.jogos` (o array segue vazio). Fazer quando formos exibir o
+    calendário/lista de jogos da temporada.
   - **Origem:** correção de limpeza de estado (não alterado por ser fora do
     escopo "apenas limpeza").
 
