@@ -151,6 +151,15 @@ function finalizarBigBang(competicao) {
   iniciarOuvinteRecordes(); // recordes históricos (Passo 23) — semeia da história
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
+  // ELO REATIVO (Passo 25): quando o Núcleo avisa que a tabela mudou,
+  // a UI apenas OBEDECE e redesenha (só se a página estiver aberta).
+  EventBus.on("TABELA_CLASSIFICACAO_ATUALIZADA", (payload) => {
+    const temporadaDoEvento = temporadasGlobais.find(
+      (t) => t.id === payload.temporadaId
+    );
+    renderizarTabelaClassificacao(temporadaDoEvento);
+  });
+
   desenharMenuLateral();
   atualizarDisplayTempo();
   atualizarBadgeMetadados();
@@ -351,9 +360,9 @@ function abrirPaginaCompeticao(idCompeticao) {
   const competicao = competicoesGlobais.find((c) => c.id === idCompeticao);
   if (!competicao) return;
 
-  // Registra como recarregar ESTA página — assim, ao avançar o tempo,
-  // a tabela de classificação se atualiza sozinha na tela.
-  recarregarPaginaAtual = () => abrirPaginaCompeticao(idCompeticao);
+  // A tabela se atualiza de forma REATIVA (via TABELA_CLASSIFICACAO_ATUALIZADA),
+  // então a página da competição NÃO precisa de re-render completo ao avançar.
+  recarregarPaginaAtual = null;
 
   // Acha a temporada ativa uma vez, para exibir o ANO real na página.
   const temporada = temporadasGlobais.find(
@@ -371,27 +380,32 @@ function abrirPaginaCompeticao(idCompeticao) {
     <h3>Equipes Participantes (${competicao.participantes.length})</h3>
     ${montarParticipantes(competicao.participantes)}
     <h3>Classificação — Temporada ${anoTexto}</h3>
-    ${montarTabelaClassificacao(temporada)}
+    <div id="area-classificacao"></div>
   `;
 
   ligarLinksInternos(pagina);
+  renderizarTabelaClassificacao(temporada); // desenho inicial da tabela
   aplicarPiscada(pagina);
 }
 
-// Monta a tabela de classificação de uma temporada.
-// LEITURA CRUZADA (CQRS): ordena uma CÓPIA da classificacao (sem mutar)
-// e, para cada linha, resolve o organizacaoId -> nome real na lista
-// global de organizações. O nome vira link para a página da equipe.
-function montarTabelaClassificacao(temporada) {
-  if (!temporada || temporada.classificacao.length === 0) {
-    return "<p><em>Nenhuma temporada ativa para esta competição.</em></p>";
+// Desenha a tabela de classificação DENTRO de #area-classificacao.
+// É a "UI estúpida": só LÊ os dados (já calculados pelo Núcleo no
+// Passo 24), ordena (Pontos > Vitórias > Saldo) e constrói o DOM.
+// No-op se a página da competição não estiver aberta (container ausente).
+function renderizarTabelaClassificacao(temporadaAtiva) {
+  const container = document.getElementById("area-classificacao");
+  if (!container) return;
+
+  if (!temporadaAtiva || temporadaAtiva.classificacao.length === 0) {
+    container.innerHTML = "<p><em>Sem classificação para esta temporada.</em></p>";
+    return;
   }
 
-  // Ordena por pontos (desc); empate desempatado por vitórias (desc).
-  // Usa cópia com [...] para NÃO alterar a ordem do dado original.
-  const ordenada = [...temporada.classificacao].sort((a, b) => {
+  // Ordena uma CÓPIA (sem mutar): pontos > vitórias > saldo (todos desc).
+  const ordenada = [...temporadaAtiva.classificacao].sort((a, b) => {
     if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-    return b.vitorias - a.vitorias;
+    if (b.vitorias !== a.vitorias) return b.vitorias - a.vitorias;
+    return b.saldoPontos - a.saldoPontos;
   });
 
   const linhas = ordenada
@@ -405,21 +419,28 @@ function montarTabelaClassificacao(temporada) {
           <td>${indice + 1}</td>
           <td><a href="#" class="link-interno" data-org-id="${linha.organizacaoId}">${nomeOrg}</a></td>
           <td>${linha.pontos}</td>
+          <td>${linha.jogos}</td>
           <td>${linha.vitorias}</td>
+          <td>${linha.empates}</td>
           <td>${linha.derrotas}</td>
+          <td>${linha.saldoPontos}</td>
         </tr>`;
     })
     .join("");
 
-  return `
+  container.innerHTML = `
     <table class="tabela-classificacao">
       <thead>
         <tr>
-          <th>Posição</th><th>Equipe</th><th>Pontos</th><th>V</th><th>D</th>
+          <th>Pos</th><th>Equipe</th><th>P</th><th>J</th>
+          <th>V</th><th>E</th><th>D</th><th>Saldo</th>
         </tr>
       </thead>
       <tbody>${linhas}</tbody>
     </table>`;
+
+  // Religa os links das equipes (recriados no innerHTML).
+  ligarLinksInternos(container);
 }
 
 // Monta o HTML das Equipes Participantes de uma competição. Recebe

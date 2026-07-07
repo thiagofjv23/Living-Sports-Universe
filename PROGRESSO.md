@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v24**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v25**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,24 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 25 (Fase 3) — Renderização Reativa da Tabela
+- **Arquivos:** `js/ui/renderizador.js`, `css/style.css`, `index.html`.
+- **`renderizarTabelaClassificacao(temporadaAtiva)`:** UI "estúpida" — só LÊ a
+  `classificacao`, ordena (Pontos > Vitórias > Saldo) e desenha a tabela completa
+  (**Pos, Equipe, P, J, V, E, D, Saldo**) dentro de `#area-classificacao`.
+  No-op se a página da competição não estiver aberta.
+- **Elo reativo:** `EventBus.on("TABELA_CLASSIFICACAO_ATUALIZADA", ...)` no
+  `finalizarBigBang` → chama `renderizarTabelaClassificacao` automaticamente.
+- **Reatividade pura:** a página da competição passou a ter `recarregarPaginaAtual
+  = null`; a tabela agora se atualiza **só via evento** (não pelo re-render do
+  botão). Container próprio (`#area-classificacao`) → update cirúrgico.
+- **CQRS:** nenhum cálculo na UI (feito no Passo 24); a tela só ordena p/ exibir
+  (em cópia) e monta DOM. Substitui `montarTabelaClassificacao`.
+- **Teste validado (headless):** 8 colunas; 12× "Avançar" sem reabrir → tabela
+  reordena e soma pontos (0→36) via evento; link do time navega; avançar fora da
+  competição é no-op; sem erros.
+- Cache: `?v=24` → `?v=25` (R2).
 
 ### ✅ Passo 24 (Fase 3) — Ouvinte de Classificação (A Tabela Viva)
 - **Arquivos:** `js/core/ouvinteClassificacao.js` (novo), `js/core/gameLoop.js`,
