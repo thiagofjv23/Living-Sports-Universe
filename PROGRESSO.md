@@ -35,6 +35,7 @@ Living-Sports-Universe/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
+    │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (só lógica, não ligado ao app)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -108,6 +109,23 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 9 (Fase 2) — Fábrica de Competições
+- **Arquivo:** `js/core/fabricaCompeticoes.js` (novo, no Núcleo).
+- **O que faz:** função `gerarCompeticao()` que cria e retorna a entidade
+  "competição".
+- **Objeto gerado:**
+  - `id` → `crypto.randomUUID()`
+  - `nome` → `PREFIXOS_COMP` (Copa/Liga/Campeonato) + `SUFIXOS_COMP`
+    (Nacional/Global/Suprema)
+  - `reputacao` → inteiro **1 a 100** (prestígio do torneio)
+  - `participantes` → `[]` (guardará **IDs** de orgs/pessoas — normalização)
+  - `historicoTemporadas` → `[]` (guardará edições anuais depois)
+- **Isolamento (Um Tijolo por Vez):** agnóstica a modalidades, **sem** HTML/CSS,
+  **sem** alterar o renderizador, e **não** ligada ao `index.html` (por isso o
+  `?v=` não mudou). Testável isolada via `console.log`.
+- **Nota:** helpers `sortearInteiroComp`/`sortearItemComp` (sufixados) para o
+  arquivo ser autossuficiente e evitar colisão de nomes com as outras fábricas.
 
 ### ✅ Passo 8 (Fase 2) — Wikipédia Relacional (Interface)
 - **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`
