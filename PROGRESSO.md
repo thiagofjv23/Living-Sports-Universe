@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v12**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v13**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -36,8 +36,8 @@ Living-Sports-Universe/
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
-    │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (só lógica, não ligado ao app)
-    │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (só lógica, não ligado ao app)
+    │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (ligado ao app no Passo 15)
+    │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -111,6 +111,29 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 15 (Fase 2) — Gerador Visual da Tabela de Classificação
+- **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`
+  (+ `fabricaTemporadas.js` e `ouvinteEstatisticas.js` ligados ao `index.html`).
+- **`iniciarMundo()`:** agora também cria a **temporada** ativa da competição,
+  inicializa a classificação (zerada), registra o ouvinte de estatísticas e
+  guarda em `temporadasGlobais`.
+- **`abrirPaginaCompeticao()`:** nova seção **"Classificação da Temporada Atual"**.
+- **`montarTabelaClassificacao(competicao)`:** acha a temporada pela
+  `competicaoId`, ordena uma **cópia** da `classificacao` por pontos (desc) e
+  vitórias (desempate), e desenha uma `<table>` (Posição, Equipe, Pontos, V, D).
+  Cada linha resolve `organizacaoId → nome` na lista global e o nome vira link
+  → `abrirPaginaOrganizacao(id)`.
+- **CQRS:** leitura cruzada (Temporada + Organizações) sem mutar nada; a cópia
+  `[...]` no `sort` evita alterar a ordem do dado original.
+- **Escopo respeitado:** NÃO foi adicionada simulação de partidas de equipe ao
+  botão "Avançar" (isso emitiria eventos da UI, contra a diretriz). A tabela
+  nasce zerada; enche quando eventos `PARTIDA_EQUIPES_FINALIZADA` são emitidos
+  (via console hoje; via Game Loop integrado num passo futuro).
+- **Teste validado (headless):** tabela zerada renderiza; após simular
+  (round-robin via console), ordena por pontos, `pontos == V*3`, nomes por ID,
+  clique navega para a organização; sem erros.
+- Cache: `?v=12` → `?v=13` (R2).
 
 ### ✅ Passo 14 (Fase 2) — Ouvinte de Estatísticas (projeção da classificação)
 - **Arquivo:** `js/core/ouvinteEstatisticas.js` (novo, no Núcleo).

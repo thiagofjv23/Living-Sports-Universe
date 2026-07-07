@@ -22,6 +22,24 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
     **várias vezes** (cada clique em "Avançar" simularia N rodadas de uma vez).
   - **O que fazer:** mover a ligação do botão para fora de `iniciarMundo()`
     (ex.: um `configurarEventos()` chamado uma única vez no `DOMContentLoaded`).
+
+- [ ] 🟡 **`registrarOuvinteEstatisticas` re-registra ao reiniciar o mundo**
+  - **Arquivos:** `js/ui/renderizador.js` (`iniciarMundo`) + `eventBus.js`.
+  - **Problema:** `iniciarMundo()` chama `registrarOuvinteEstatisticas(temporada)`,
+    que faz `EventBus.on(...)`. A limpeza de estado zera a `memoriaHistorica`, mas
+    **não** limpa `EventBus.ouvintes`. Hoje é seguro (roda 1x no load), mas se
+    `iniciarMundo()` rodar de novo (botão "Reiniciar"), o ouvinte de estatísticas
+    seria registrado 2x (pontos dobrados) e ainda apontaria para a temporada antiga.
+  - **O que fazer:** ao reiniciar, resetar o `EventBus` (ex.: `EventBus.ouvintes = {}`
+    e re-registrar os ouvintes) ou registrar os ouvintes fora de `iniciarMundo()`.
+
+- [ ] 🟢 **Integrar simulação de partidas de EQUIPE ao Game Loop ("Avançar")**
+  - **Arquivos:** `js/core/gameLoop.js` + `js/ui/renderizador.js` (`avancarTempo`).
+  - **Contexto:** hoje "Avançar" simula só partidas de ATLETAS. A tabela de
+    classificação (Passo 15) só enche via eventos disparados no console.
+  - **O que fazer:** criar no Núcleo uma `simularRodadaCompeticao(temporada,
+    competicao, organizacoes)` que emite `PARTIDA_EQUIPES_FINALIZADA` (sem DOM),
+    chamada pelo `avancarTempo`, e empurrar os IDs dos jogos em `temporada.jogos`.
   - **Origem:** correção de limpeza de estado (não alterado por ser fora do
     escopo "apenas limpeza").
 

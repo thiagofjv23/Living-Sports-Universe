@@ -131,6 +131,35 @@ body {
   padding: 4px 0;
 }
 
+/* Tabela de classificação da temporada. */
+.tabela-classificacao {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 8px;
+}
+
+.tabela-classificacao th,
+.tabela-classificacao td {
+  border: 1px solid #a2a9b1;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+.tabela-classificacao th {
+  background: #eaecf0;
+}
+
+/* Coluna "Equipe" alinhada à esquerda. */
+.tabela-classificacao td:nth-child(2),
+.tabela-classificacao th:nth-child(2) {
+  text-align: left;
+}
+
+.tabela-classificacao tbody tr:nth-child(odd) {
+  background: #f8f9fa;
+}
+
 /* Página Principal (direita) — a "Wikipédia". */
 #pagina-principal {
   flex: 1;

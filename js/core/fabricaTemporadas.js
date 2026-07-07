@@ -21,7 +21,3 @@ function gerarTemporada(competicaoId, ano) {
     classificacao: [], // tabela de pontos das equipes participantes
   };
 }
-
-// Teste rápido: cria uma temporada com um ID fictício e um ano, e
-// imprime no console (arquivo ainda não ligado ao index.html).
-console.log(gerarTemporada("competicao-ficticia-123", 2024));

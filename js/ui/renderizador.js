@@ -16,6 +16,7 @@
 let atletasDoMundo = [];
 let organizacoesDoMundo = [];
 let competicoesGlobais = [];
+let temporadasGlobais = [];
 
 // Estado da INTERFACE: qual atleta o usuário está visualizando.
 // null = nenhuma página de atleta aberta (usado no re-render reativo).
@@ -53,6 +54,14 @@ function iniciarMundo() {
   const competicao = gerarCompeticao();
   inscreverEquipesNaCompeticao(organizacoesDoMundo, competicao);
   competicoesGlobais = [competicao];
+
+  // Cria a temporada ativa dessa competição, com a tabela zerada, e
+  // registra o ouvinte que projetará os resultados na classificação.
+  // (A UI apenas LÊ essa tabela; quem a atualiza é o ouvinte via bus.)
+  const temporada = gerarTemporada(competicao.id, 2024);
+  iniciarClassificacaoTemporada(temporada, competicao);
+  registrarOuvinteEstatisticas(temporada);
+  temporadasGlobais = [temporada];
 
   desenharMenuLateral();
   atualizarDisplayRodada();
@@ -193,10 +202,59 @@ function abrirPaginaCompeticao(idCompeticao) {
     </ul>
     <h3>Equipes Participantes (${competicao.participantes.length})</h3>
     ${montarParticipantes(competicao.participantes)}
+    <h3>Classificação da Temporada Atual</h3>
+    ${montarTabelaClassificacao(competicao)}
   `;
 
   ligarLinksInternos(pagina);
   aplicarPiscada(pagina);
+}
+
+// Monta a tabela de classificação da temporada ativa de uma competição.
+// LEITURA CRUZADA (CQRS): ordena uma CÓPIA da classificacao (sem mutar)
+// e, para cada linha, resolve o organizacaoId -> nome real na lista
+// global de organizações. O nome vira link para a página da equipe.
+function montarTabelaClassificacao(competicao) {
+  const temporada = temporadasGlobais.find(
+    (t) => t.competicaoId === competicao.id
+  );
+  if (!temporada || temporada.classificacao.length === 0) {
+    return "<p><em>Nenhuma temporada ativa para esta competição.</em></p>";
+  }
+
+  // Ordena por pontos (desc); empate desempatado por vitórias (desc).
+  // Usa cópia com [...] para NÃO alterar a ordem do dado original.
+  const ordenada = [...temporada.classificacao].sort((a, b) => {
+    if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+    return b.vitorias - a.vitorias;
+  });
+
+  const linhas = ordenada
+    .map((linha, indice) => {
+      const organizacao = organizacoesDoMundo.find(
+        (o) => o.id === linha.organizacaoId
+      );
+      const nomeOrg = organizacao ? organizacao.nome : "Equipe desconhecida";
+      return `
+        <tr>
+          <td>${indice + 1}</td>
+          <td><a href="#" class="link-interno" data-org-id="${linha.organizacaoId}">${nomeOrg}</a></td>
+          <td>${linha.pontos}</td>
+          <td>${linha.vitorias}</td>
+          <td>${linha.derrotas}</td>
+        </tr>`;
+    })
+    .join("");
+
+  return `
+    <table class="tabela-classificacao">
+      <thead>
+        <tr>
+          <th>Posição</th><th>Equipe</th><th>Pontos</th><th>V</th><th>D</th>
+        </tr>
+      </thead>
+      <tbody>${linhas}</tbody>
+    </table>`;
 }
 
 // Monta o HTML das Equipes Participantes de uma competição. Recebe
