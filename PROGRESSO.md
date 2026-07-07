@@ -36,6 +36,7 @@ Living-Sports-Universe/
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
+    │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (só lógica, não ligado ao app)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -109,6 +110,22 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 11 (Fase 2) — Fábrica de Temporadas
+- **Arquivo:** `js/core/fabricaTemporadas.js` (novo, no Núcleo).
+- **O que faz:** `gerarTemporada(competicaoId, ano)` cria a edição anual de um
+  torneio (o "caderno de registros" isolado de um ano).
+- **Objeto gerado:**
+  - `id` → `crypto.randomUUID()`
+  - `competicaoId` → ID da competição-mãe (referência, por parâmetro)
+  - `ano` → ano da edição (por parâmetro, ex.: 2024)
+  - `rodadaAtual` → inteiro iniciando em **1** (propriedade do objeto temporada,
+    não confundir com o `rodadaAtual` global do `gameLoop.js`)
+  - `jogos` → `[]` (IDs dos jogos/fatos do ano)
+  - `classificacao` → `[]` (tabela de pontos das equipes)
+- **Isolamento (Um Tijolo por Vez):** agnóstica a modalidades, **sem** HTML/CSS,
+  **sem** renderizador, **não** ligada ao `index.html` (por isso o `?v=` não
+  mudou). Testável isolada via `console.log`.
 
 ### ✅ Passo 10 (Fase 2) — Inscrição + Wikipédia das Competições
 - **Arquivos:** `index.html`, `css/style.css`, `js/core/gameLoop.js`,
