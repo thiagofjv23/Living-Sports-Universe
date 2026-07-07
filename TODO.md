@@ -83,6 +83,23 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   - **O que fazer:** decidir se a data deve avançar junto com as rodadas (um
     calendário do universo) ou se removemos o campo em favor de `rodada`.
 
+## Integrações Pendentes (entidades criadas, ainda não ligadas ao mundo)
+
+- [ ] 🟡 **Integrar Contratos ao mundo (Passo 18)**
+  - **Arquivo:** `js/core/fabricaContratos.js` (criado, isolado).
+  - **O que fazer:** no "Big Bang" (`iniciarMundo`), gerar um `gerarContrato()` para
+    cada atleta ligando-o à sua organização, guardar numa lista global
+    (`contratosGlobais`), e futuramente exibir a carreira/contrato na interface.
+    Depois: substituir o `organizacaoId` solto do atleta pela leitura do contrato
+    ativo, e usar `anoFim`/`ativo` para expiração e mercado de transferências.
+
+- [ ] 🟡 **Ligar o Ouvinte de Saúde ao app (Passo 19)**
+  - **Arquivo:** `js/core/ouvinteSaude.js` (criado, isolado; testado via Node).
+  - **O que fazer:** carregar no `index.html` e chamar `registrarOuvinteSaude(
+    atletasDoMundo)` no `finalizarBigBang`, para lesões ocorrerem nas partidas do
+    presente. Depois, exibir as lesões na Linha do Tempo do atleta / departamento
+    médico. (Hoje `memoriaHistorica` já arquiva `ATLETA_LESIONADO_GRAVEMENTE`.)
+
 ## Ideias / Melhorias Futuras (não urgentes)
 
 - [ ] 🟢 **Oponentes clicáveis na Linha do Tempo** (navegação estilo Wikipédia):

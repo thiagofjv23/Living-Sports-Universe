@@ -24,3 +24,4 @@ function ouvinteHistorico(payload) {
 // de equipes (todo fato do universo passa por aqui).
 EventBus.on("PARTIDA_FINALIZADA", ouvinteHistorico);
 EventBus.on("PARTIDA_EQUIPES_FINALIZADA", ouvinteHistorico);
+EventBus.on("ATLETA_LESIONADO_GRAVEMENTE", ouvinteHistorico);
