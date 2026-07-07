@@ -30,7 +30,3 @@ function gerarContrato(pessoaId, organizacaoId, anoAtual) {
     ativo: true, // facilita checar contratos rescindidos/expirados
   };
 }
-
-// Teste rápido: cria um contrato com IDs fictícios e o ano atual, e
-// imprime no console (arquivo ainda não ligado ao index.html).
-console.log(gerarContrato("pessoa-ficticia-1", "organizacao-ficticia-9", 2026));

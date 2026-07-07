@@ -85,28 +85,20 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
 
 ## Integrações Pendentes (entidades criadas, ainda não ligadas ao mundo)
 
-- [ ] 🟡 **Integrar Contratos ao mundo (Passo 18)**
-  - **Arquivo:** `js/core/fabricaContratos.js` (criado, isolado).
-  - **O que fazer:** no "Big Bang" (`iniciarMundo`), gerar um `gerarContrato()` para
-    cada atleta ligando-o à sua organização, guardar numa lista global
-    (`contratosGlobais`), e futuramente exibir a carreira/contrato na interface.
-    Depois: substituir o `organizacaoId` solto do atleta pela leitura do contrato
-    ativo, e usar `anoFim`/`ativo` para expiração e mercado de transferências.
+- [x] 🟡 **Integrar Contratos ao mundo (Passo 18)** ✅ **Feito no Passo 22:**
+  `iniciarMundo` gera um `gerarContrato()` por atleta em `contratosGlobais`.
+  - **Pendência restante:** exibir a carreira/contrato na interface; usar
+    `anoFim`/`ativo` para expiração e mercado de transferências; e, após rescisão,
+    reorganizar o elenco (hoje o atleta rescindido continua no elenco da org).
 
-- [ ] 🟡 **Ligar o Ouvinte de Saúde ao app (Passo 19)**
-  - **Arquivo:** `js/core/ouvinteSaude.js` (criado, isolado; testado via Node).
-  - **O que fazer:** carregar no `index.html` e chamar `registrarOuvinteSaude(
-    atletasDoMundo)` no `finalizarBigBang`, para lesões ocorrerem nas partidas do
-    presente. Depois, exibir as lesões na Linha do Tempo do atleta / departamento
-    médico. (Hoje `memoriaHistorica` já arquiva `ATLETA_LESIONADO_GRAVEMENTE`.)
+- [x] 🟡 **Ligar o Ouvinte de Saúde ao app (Passo 19)** ✅ **Feito no Passo 22:**
+  carregado no `index.html` e registrado no `finalizarBigBang`. Lesões ocorrem
+  nas partidas do presente.
+  - **Pendência restante:** exibir as lesões na Linha do Tempo / departamento médico.
 
-- [ ] 🟡 **Ligar o Ouvinte de Contratos ao app (Passo 20)**
-  - **Arquivo:** `js/core/ouvinteContratos.js` (criado, isolado; testado via Node).
-  - **O que fazer:** carregar no `index.html` e chamar `registrarOuvinteContratos(
-    contratosGlobais)` no `finalizarBigBang` — **depende** de os contratos já
-    estarem integrados ao mundo (item acima). Aí o efeito dominó
-    lesão → rescisão ganha vida no presente. (Hoje `memoriaHistorica` já arquiva
-    `CONTRATO_RESCINDIDO`.) Depois: exibir rescisões na carreira do atleta.
+- [x] 🟡 **Ligar o Ouvinte de Contratos ao app (Passo 20)** ✅ **Feito no Passo 22:**
+  carregado e registrado; o efeito dominó lesão → rescisão está vivo no presente.
+  - **Pendência restante:** exibir as rescisões na carreira do atleta.
 
 ## Ideias / Melhorias Futuras (não urgentes)
 

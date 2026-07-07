@@ -17,6 +17,7 @@ let atletasDoMundo = [];
 let organizacoesDoMundo = [];
 let competicoesGlobais = [];
 let temporadasGlobais = [];
+let contratosGlobais = [];
 
 // Feed de notícias EFÊMERAS (só exibição; NÃO é a Memória Histórica).
 // Guarda no máximo as 10 manchetes mais recentes.
@@ -36,6 +37,7 @@ function iniciarMundo() {
   memoriaHistorica.length = 0; // zera a Memória Histórica
   rodadaAtual = 1; // reinicia o relógio do universo
   recarregarPaginaAtual = null; // nenhuma página aberta
+  contratosGlobais = []; // zera a base de contratos
   noticiasEfemerias = []; // zera o feed de notícias
   renderizarFeedNoticias(); // limpa o painel na tela
   document.getElementById("lista-competicoes").innerHTML = "";
@@ -57,6 +59,12 @@ function iniciarMundo() {
 
   // Conecta cada atleta a uma organização (grava só o organizacaoId).
   distribuirAtletasNasOrganizacoes(atletasDoMundo, organizacoesDoMundo);
+
+  // Formaliza o vínculo de cada atleta com sua organização num Contrato
+  // (Passo 18 integrado). Guarda a base para o ouvinte de contratos.
+  contratosGlobais = atletasDoMundo.map((atleta) =>
+    gerarContrato(atleta.id, atleta.organizacaoId, anoAtual)
+  );
 
   // Gera 1 competição e inscreve TODAS as organizações nela
   // (guarda só os IDs das equipes em competicao.participantes).
@@ -132,8 +140,15 @@ function finalizarBigBang(competicao) {
   // não somar pontos no presente.
   const temporada = gerarTemporada(competicao.id, anoAtual);
   iniciarClassificacaoTemporada(temporada, competicao);
-  registrarOuvinteEstatisticas(temporada);
   temporadasGlobais = [temporada];
+
+  // Registra os ouvintes do PRESENTE (reagem aos jogos do "Avançar").
+  // Ordem não importa: todos escutam o mesmo barramento de forma
+  // independente (Pub/Sub).
+  registrarOuvinteEstatisticas(temporada); // tabela de classificação
+  registrarOuvinteSaude(atletasDoMundo); // lesões graves (Passo 19)
+  registrarOuvinteContratos(contratosGlobais); // rescisões (Passo 20)
+  iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
   desenharMenuLateral();
   atualizarDisplayTempo();
@@ -143,11 +158,6 @@ function finalizarBigBang(competicao) {
   // Remove o loading e mostra a dica inicial.
   document.getElementById("pagina-principal").innerHTML =
     '<p class="dica">← Selecione um item no menu para explorar o universo.</p>';
-
-  // TESTE do Passo 21: duas manchetes fictícias para conferir o painel.
-  // (Ainda sem ligação com o EventBus — puramente visual.)
-  adicionarNoticiaUI("Lesão grave abala a liga!");
-  adicionarNoticiaUI("O atleta X rescindiu o contrato!");
 }
 
 // Insere uma manchete no TOPO do feed efêmero e mantém no máximo 10

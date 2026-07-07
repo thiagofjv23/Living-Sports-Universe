@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v21**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v22**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -48,7 +48,8 @@ Living-Sports-Universe/
     ├── modulos-esportivos/             ← MATEMÁTICA (só cálculo → JSON)
     │   └── moduloBasico.js             ← ✅ Passo 2 (implementado)
     └── ui/                             ← TELA (CQRS: só lê os dados)
-        └── renderizador.js             ← ✅ Passo 4 (implementado)
+        ├── renderizador.js             ← ✅ Passo 4 (implementado)
+        └── ouvinteNoticias.js          ← ✅ Passo 22 (ponte eventos → feed)
 ```
 
 ---
@@ -117,6 +118,27 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 22 (Fase 3) — Ouvinte de Notícias + GRANDE COSTURA da cadeia
+- **Arquivos:** `js/ui/ouvinteNoticias.js` (novo), `js/ui/renderizador.js`,
+  `js/core/fabricaContratos.js`, `index.html`.
+- **`ouvinteNoticias.js` (UI):** `iniciarOuvinteNoticias()` assina
+  `ATLETA_LESIONADO_GRAVEMENTE` e `CONTRATO_RESCINDIDO`, resolve nomes (atleta/org)
+  nas listas globais, monta a manchete e chama `adicionarNoticiaUI` +
+  `renderizarFeedNoticias`. Fica em `js/ui/` (não no Núcleo) por tocar DOM.
+- **Integração completa (a cadeia ganhou vida no presente):**
+  - Contratos integrados: `iniciarMundo` gera `contratosGlobais` (1 por atleta).
+  - `finalizarBigBang` registra os ouvintes do presente: estatísticas, **saúde**,
+    **contratos** e **notícias**.
+  - `index.html` passou a carregar `fabricaContratos`, `ouvinteSaude`,
+    `ouvinteContratos` e `ouvinteNoticias`.
+  - Removidas as manchetes de teste do Passo 21 (agora as notícias são reais).
+- **Cadeia viva:** Avançar → `PARTIDA_EQUIPES_FINALIZADA` → (3%) lesão → (30%)
+  rescisão → manchetes na tela; tudo arquivado na `memoriaHistorica`.
+- **Teste validado (headless/http):** manchetes com formato correto; 300 rodadas →
+  ~15 lesões e ~4 rescisões arquivadas, painel enchendo (cap 10); sem erros.
+- Resolve 3 itens de "Integrações Pendentes" do TODO.
+- Cache: `?v=21` → `?v=22` (R2).
 
 ### ✅ Passo 21 (Fase 3) — Sistema de Notícias (Visualização Efêmera)
 - **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`.
