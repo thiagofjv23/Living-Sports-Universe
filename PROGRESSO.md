@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v8**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v9**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -34,7 +34,7 @@ Living-Sports-Universe/
 └── js/
     ├── core/                           ← NÚCLEO (agnóstico: entidades + memória)
     │   ├── fabricaRegens.js            ← ✅ Passo 1 (implementado)
-    │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (implementado)
+    │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -108,6 +108,32 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 8 (Fase 2) — Wikipédia Relacional (Interface)
+- **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`
+  (+ `fabricaOrganizacoes.js` finalmente ligado ao `index.html`).
+- **`iniciarMundo()`:** agora gera **3 organizações** + **12 atletas**, chama
+  `distribuirAtletasNasOrganizacoes()` e guarda `atletasDoMundo` e
+  `organizacoesDoMundo` como globais de leitura. Mantém a limpeza de estado.
+- **Menu lateral:** duas seções clicáveis — **Atletas** (`#lista-atletas`) e
+  **Organizações** (`#lista-organizacoes`).
+- **Página do atleta:** nova linha **Organização**, achada pelo `organizacaoId`,
+  como link clicável → `abrirPaginaOrganizacao(id)`.
+- **Página da organização (nova):** `abrirPaginaOrganizacao(idOrganizacao)` mostra
+  nome + reputação e o **Elenco** = `atletasDoMundo.filter(a => a.organizacaoId
+  === id)`; cada atleta do elenco é link → `abrirPaginaAtleta(id)`.
+- **Helpers novos:** `ligarLinksInternos()` (liga os links "vai e vem" por
+  data-attributes) e `aplicarPiscada()` (animação, antes duplicada).
+- **CQRS:** tudo é leitura/`filter`; a UI não altera dados nem emite eventos.
+- **Decisão:** ao abrir uma organização, `atletaSelecionadoId = null` para o
+  "Avançar" não pular de volta a um atleta enquanto a org está aberta.
+- **Mudança de comportamento:** `iniciarMundo()` **não simula mais partidas
+  iniciais** (seguindo a especificação do passo). As linhas do tempo começam
+  vazias e crescem ao clicar em "Avançar 1 Rodada". (Fácil reverter se quiser
+  jogos já no load — ver observação na conversa.)
+- **Teste validado (headless):** 12 atletas / 3 orgs; navegação atleta→org→
+  elenco→atleta; soma dos elencos = 12 (integridade); sem erros.
+- Cache: `?v=8` → `?v=9` (R2).
 
 ### ✅ Passo 7 (Fase 2) — Lógica Relacional (Atleta ↔ Organização)
 - **Arquivo:** `js/core/gameLoop.js` (Núcleo).

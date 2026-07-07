@@ -30,7 +30,3 @@ function gerarOrganizacao() {
     reputacao: sortearInteiroOrg(1, 100),
   };
 }
-
-// Teste rápido: roda a função e imprime a organização gerada no
-// console do navegador (arquivo ainda não ligado ao index.html).
-console.log(gerarOrganizacao());

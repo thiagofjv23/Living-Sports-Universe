@@ -92,16 +92,41 @@ body {
   margin: 0;
 }
 
-#lista-atletas li {
+#lista-atletas li,
+#lista-organizacoes li {
   padding: 6px 8px;
   color: #3366cc;
   cursor: pointer;
   border-radius: 3px;
 }
 
-#lista-atletas li:hover {
+#lista-atletas li:hover,
+#lista-organizacoes li:hover {
   background: #eaf3ff;
   text-decoration: underline;
+}
+
+/* Links internos "vai e vem" (organização na página do atleta,
+   atletas no elenco da organização) — navegação estilo Wikipédia. */
+.link-interno {
+  color: #3366cc;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-interno:hover {
+  text-decoration: underline;
+}
+
+/* Lista do Elenco na página da organização. */
+.elenco {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.elenco li {
+  padding: 4px 0;
 }
 
 /* Página Principal (direita) — a "Wikipédia". */

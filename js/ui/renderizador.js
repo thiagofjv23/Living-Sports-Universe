@@ -1,43 +1,51 @@
 // =============================================================
 // Interface (UI) — Renderizador
-// Passo 4 do MVP: a primeira "página de Wikipédia".
+// Passo 8 (Fase 2): a "Wikipédia Relacional".
 //
-// Princípio CQRS (Documento Mestre): este arquivo APENAS LÊ a
-// memoriaHistorica para desenhar a tela. Ele NUNCA altera os
-// dados e NUNCA emite eventos — a geração do mundo (lógica +
-// emit) fica no gameLoop.js, no Núcleo.
+// Princípio CQRS (Documento Mestre): este arquivo APENAS LÊ as
+// listas do mundo e a memoriaHistorica para desenhar a tela. Ele
+// NUNCA altera os dados e NUNCA emite eventos — a geração do mundo
+// (lógica + emit) fica no gameLoop.js, no Núcleo.
 //
-// Depende de: gameLoop.js (gerarMundo), memoriaHistorica (leitura)
-// e do DOM (index.html), carregados antes deste arquivo.
+// Depende de: gameLoop.js (gerarMundo/distribuir...), fabricaRegens,
+// fabricaOrganizacoes, memoriaHistorica (leitura) e do DOM.
 // =============================================================
 
-// Referência de leitura para a lista de atletas do mundo atual.
-// A UI guarda essa lista só para consultar Nome/Idade/Habilidade;
-// a fonte da verdade dos FATOS continua sendo a memoriaHistorica.
+// Listas de leitura do mundo atual (a UI só consulta; a verdade dos
+// FATOS continua na memoriaHistorica).
 let atletasDoMundo = [];
+let organizacoesDoMundo = [];
 
 // Estado da INTERFACE: qual atleta o usuário está visualizando.
-// null = nenhuma página aberta. É usado para "recarregar" a página
-// quando o tempo avança (a mágica da reatividade).
+// null = nenhuma página de atleta aberta (usado no re-render reativo).
 let atletaSelecionadoId = null;
 
-// Ponto de entrada: cria o mundo (delegando a lógica ao Núcleo),
-// desenha o menu lateral, atualiza o relógio e liga o botão.
+// Ponto de entrada: cria o mundo (chamando o Núcleo), conecta as
+// entidades e desenha o menu lateral.
 function iniciarMundo() {
   // --- LIMPEZA DE ESTADO: o universo nasce do zero absoluto. ---
-  // Precisa vir ANTES de gerarMundo() para não misturar mundo antigo
-  // com o novo. Usa .length = 0 (a memória é const: reesvazia o mesmo
-  // array, preservando o ouvinte já registrado no EventBus).
   memoriaHistorica.length = 0; // zera a Memória Histórica
   rodadaAtual = 1; // reinicia o relógio do universo
   atletaSelecionadoId = null; // ninguém selecionado
-  document.getElementById("lista-atletas").innerHTML = ""; // limpa o menu
-  document.getElementById("pagina-principal").innerHTML = ""; // limpa a página
+  document.getElementById("lista-atletas").innerHTML = "";
+  document.getElementById("lista-organizacoes").innerHTML = "";
+  document.getElementById("pagina-principal").innerHTML = "";
   // -------------------------------------------------------------
 
-  // gerarMundo() (gameLoop.js) gera 6 atletas, simula 10 partidas e
-  // publica tudo no EventBus -> a memoriaHistorica é populada.
-  atletasDoMundo = gerarMundo(6, 10);
+  // Gera 3 organizações e 12 atletas (funções do Núcleo).
+  organizacoesDoMundo = [];
+  for (let i = 0; i < 3; i++) {
+    organizacoesDoMundo.push(gerarOrganizacao());
+  }
+
+  atletasDoMundo = [];
+  for (let i = 0; i < 12; i++) {
+    atletasDoMundo.push(gerarAtleta());
+  }
+
+  // Conecta cada atleta a uma organização (grava só o organizacaoId).
+  distribuirAtletasNasOrganizacoes(atletasDoMundo, organizacoesDoMundo);
+
   desenharMenuLateral();
   atualizarDisplayRodada();
 
@@ -48,15 +56,11 @@ function iniciarMundo() {
 // Avança o tempo: pede ao Núcleo para simular uma nova rodada e,
 // em seguida, sincroniza a interface com o novo estado do mundo.
 function avancarTempo() {
-  // Simulação da rodada (incrementa rodadaAtual, forma duplas,
-  // simula e emite no EventBus) vive no Núcleo — sem DOM aqui.
   simularRodada(atletasDoMundo);
-
-  // A tela precisa saber que o tempo passou:
   atualizarDisplayRodada();
 
-  // A MÁGICA DA REATIVIDADE: se o usuário está vendo alguém, a
-  // página "pisca" e recarrega com as partidas recém-geradas.
+  // A MÁGICA DA REATIVIDADE: se há um atleta aberto, recarrega a
+  // página dele com as partidas recém-geradas.
   if (atletaSelecionadoId) {
     abrirPaginaAtleta(atletaSelecionadoId);
   }
@@ -67,32 +71,42 @@ function atualizarDisplayRodada() {
   document.getElementById("rodada-atual").textContent = rodadaAtual;
 }
 
-// Desenha a lista clicável de atletas no menu lateral (esquerda).
+// Desenha as duas seções clicáveis do menu: Atletas e Organizações.
 function desenharMenuLateral() {
-  const lista = document.getElementById("lista-atletas");
-  lista.innerHTML = "";
-
+  const listaAtletas = document.getElementById("lista-atletas");
+  listaAtletas.innerHTML = "";
   atletasDoMundo.forEach((atleta) => {
     const item = document.createElement("li");
     item.textContent = atleta.nome;
     item.addEventListener("click", () => abrirPaginaAtleta(atleta.id));
-    lista.appendChild(item);
+    listaAtletas.appendChild(item);
+  });
+
+  const listaOrgs = document.getElementById("lista-organizacoes");
+  listaOrgs.innerHTML = "";
+  organizacoesDoMundo.forEach((organizacao) => {
+    const item = document.createElement("li");
+    item.textContent = organizacao.nome;
+    item.addEventListener("click", () => abrirPaginaOrganizacao(organizacao.id));
+    listaOrgs.appendChild(item);
   });
 }
 
 // Abre a "página" de um atleta na área principal (direita).
-// LÊ os dados do atleta e filtra a memoriaHistorica em busca das
-// partidas em que ele participou, montando a Linha do Tempo.
 function abrirPaginaAtleta(idAtleta) {
   const atleta = atletasDoMundo.find((a) => a.id === idAtleta);
   if (!atleta) return;
 
-  // Guarda quem está sendo visto, para o re-render reativo ao avançar
-  // o tempo saber qual página recarregar.
+  // Guarda quem está sendo visto (para o re-render reativo do tempo).
   atletaSelecionadoId = idAtleta;
 
-  // A MÁGICA DA HISTÓRIA: leitura pura (filter) da memória — sem
-  // alterar nada. Pega só as partidas onde este atleta jogou.
+  // Relação por ID: acha a organização do atleta pelo organizacaoId.
+  const organizacao = organizacoesDoMundo.find(
+    (o) => o.id === atleta.organizacaoId
+  );
+  const nomeOrg = organizacao ? organizacao.nome : "Sem organização";
+
+  // A MÁGICA DA HISTÓRIA: leitura pura (filter) da memória.
   const partidasDoAtleta = memoriaHistorica.filter(
     (partida) =>
       partida.competidores.atletaA.id === idAtleta ||
@@ -105,15 +119,63 @@ function abrirPaginaAtleta(idAtleta) {
     <ul class="ficha">
       <li><strong>Idade:</strong> ${atleta.idade} anos</li>
       <li><strong>Habilidade:</strong> ${atleta.habilidade} / 100</li>
+      <li><strong>Organização:</strong>
+        <a href="#" class="link-interno" data-org-id="${atleta.organizacaoId}">${nomeOrg}</a>
+      </li>
     </ul>
     <h3>Linha do Tempo (${partidasDoAtleta.length} partida(s))</h3>
     ${montarLinhaDoTempo(idAtleta, partidasDoAtleta)}
   `;
 
-  // Reinicia a animação de "piscar" para dar o feedback de recarga.
-  pagina.classList.remove("piscar");
-  void pagina.offsetWidth; // força reflow para a animação rodar de novo
-  pagina.classList.add("piscar");
+  ligarLinksInternos(pagina);
+  aplicarPiscada(pagina);
+}
+
+// Abre a "página" de uma organização, com sua ficha e o Elenco.
+function abrirPaginaOrganizacao(idOrganizacao) {
+  const organizacao = organizacoesDoMundo.find((o) => o.id === idOrganizacao);
+  if (!organizacao) return;
+
+  // Saímos da página de um atleta: zera a seleção para o avançar do
+  // tempo não "pular" de volta para um atleta enquanto vemos a org.
+  atletaSelecionadoId = null;
+
+  // A MÁGICA RELACIONAL: o Elenco é a leitura pura (filter) dos
+  // atletas cujo organizacaoId aponta para esta organização.
+  const elenco = atletasDoMundo.filter(
+    (a) => a.organizacaoId === idOrganizacao
+  );
+
+  const pagina = document.getElementById("pagina-principal");
+  pagina.innerHTML = `
+    <h2>${organizacao.nome}</h2>
+    <ul class="ficha">
+      <li><strong>Reputação:</strong> ${organizacao.reputacao} / 100</li>
+    </ul>
+    <h3>Elenco (${elenco.length} atleta(s))</h3>
+    ${montarElenco(elenco)}
+  `;
+
+  ligarLinksInternos(pagina);
+  aplicarPiscada(pagina);
+}
+
+// Monta o HTML do Elenco (lista de atletas clicáveis) de uma org.
+function montarElenco(elenco) {
+  if (elenco.length === 0) {
+    return "<p><em>Nenhum atleta nesta organização.</em></p>";
+  }
+
+  const itens = elenco
+    .map(
+      (atleta) => `
+        <li>
+          <a href="#" class="link-interno" data-atleta-id="${atleta.id}">${atleta.nome}</a>
+        </li>`
+    )
+    .join("");
+
+  return `<ul class="elenco">${itens}</ul>`;
 }
 
 // Monta o HTML da Linha do Tempo a partir das partidas filtradas.
@@ -145,6 +207,32 @@ function montarLinhaDoTempo(idAtleta, partidas) {
     .join("");
 
   return `<ul class="linha-do-tempo">${itens}</ul>`;
+}
+
+// --- Helpers de UI (reutilizados pelas duas páginas) ---
+
+// Liga os links internos "vai e vem" gerados via innerHTML, usando
+// os data-attributes para saber qual página abrir (navegação por ID).
+function ligarLinksInternos(container) {
+  container.querySelectorAll("[data-org-id]").forEach((el) => {
+    el.addEventListener("click", (evento) => {
+      evento.preventDefault();
+      abrirPaginaOrganizacao(el.dataset.orgId);
+    });
+  });
+  container.querySelectorAll("[data-atleta-id]").forEach((el) => {
+    el.addEventListener("click", (evento) => {
+      evento.preventDefault();
+      abrirPaginaAtleta(el.dataset.atletaId);
+    });
+  });
+}
+
+// Reinicia a animação de "piscar" para dar o feedback de recarga.
+function aplicarPiscada(elemento) {
+  elemento.classList.remove("piscar");
+  void elemento.offsetWidth; // força reflow para a animação rodar de novo
+  elemento.classList.add("piscar");
 }
 
 // Dispara a montagem do mundo quando o HTML estiver pronto.

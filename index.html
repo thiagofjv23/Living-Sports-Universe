@@ -10,7 +10,7 @@
       usar a cópia antiga guardada. Lembrete: incrementar N sempre que
       um destes arquivos for alterado.
     -->
-    <link rel="stylesheet" href="css/style.css?v=8" />
+    <link rel="stylesheet" href="css/style.css?v=9" />
   </head>
   <body>
     <header id="topo">
@@ -20,11 +20,13 @@
     </header>
 
     <div id="layout">
-      <!-- Menu Lateral (esquerda): botão de tempo + lista de atletas. -->
+      <!-- Menu Lateral (esquerda): botão de tempo + seções clicáveis. -->
       <nav id="menu-lateral">
         <button id="btn-avancar">▶ Avançar 1 Rodada</button>
         <h2>Atletas</h2>
         <ul id="lista-atletas"></ul>
+        <h2>Organizações</h2>
+        <ul id="lista-organizacoes"></ul>
       </nav>
 
       <!-- Página Principal (direita): a "Wikipédia" do atleta. -->
@@ -37,11 +39,12 @@
       Ordem de carregamento IMPORTANTE (dependências por variáveis globais):
       Núcleo lógico primeiro, depois o módulo esportivo, e por fim a interface.
     -->
-    <script src="js/core/fabricaRegens.js?v=8"></script>
-    <script src="js/modulos-esportivos/moduloBasico.js?v=8"></script>
-    <script src="js/core/eventBus.js?v=8"></script>
-    <script src="js/core/memoriaHistorica.js?v=8"></script>
-    <script src="js/core/gameLoop.js?v=8"></script>
-    <script src="js/ui/renderizador.js?v=8"></script>
+    <script src="js/core/fabricaRegens.js?v=9"></script>
+    <script src="js/core/fabricaOrganizacoes.js?v=9"></script>
+    <script src="js/modulos-esportivos/moduloBasico.js?v=9"></script>
+    <script src="js/core/eventBus.js?v=9"></script>
+    <script src="js/core/memoriaHistorica.js?v=9"></script>
+    <script src="js/core/gameLoop.js?v=9"></script>
+    <script src="js/ui/renderizador.js?v=9"></script>
   </body>
 </html>
