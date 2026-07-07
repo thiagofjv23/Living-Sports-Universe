@@ -172,6 +172,39 @@ body {
   font-style: italic;
 }
 
+/* Feed de notícias efêmeras (painel fixo abaixo do cabeçalho). */
+#feed-noticias:empty {
+  display: none;
+}
+
+#feed-noticias {
+  padding: 10px 24px;
+  background: #fbfbe8;
+  border-bottom: 1px solid #d8d8a8;
+}
+
+#feed-noticias h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #54595d;
+}
+
+.lista-noticias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lista-noticias li {
+  font-size: 13px;
+  padding: 2px 0;
+  border-bottom: 1px dotted #e0e0c0;
+}
+
+.lista-noticias li:last-child {
+  border-bottom: none;
+}
+
 /* Badge de metadados discreto no rodapé do menu lateral. */
 #badge-metadados {
   margin-top: 20px;

@@ -12,7 +12,7 @@
       usar a cópia antiga guardada. Lembrete: incrementar N sempre que
       um destes arquivos for alterado.
     -->
-    <link rel="stylesheet" href="css/style.css?v=20" />
+    <link rel="stylesheet" href="css/style.css?v=21" />
   </head>
   <body>
     <header id="topo">
@@ -23,6 +23,10 @@
         · Rodada <strong id="rodada-atual">1</strong>
       </p>
     </header>
+
+    <!-- Feed de notícias efêmeras: painel FIXO (fora da área principal,
+         que é reescrita a cada navegação). Preenchido só via JS. -->
+    <section id="feed-noticias"></section>
 
     <div id="layout">
       <!-- Menu Lateral (esquerda): botão de tempo + seções clicáveis. -->
@@ -47,15 +51,15 @@
       Ordem de carregamento IMPORTANTE (dependências por variáveis globais):
       Núcleo lógico primeiro, depois o módulo esportivo, e por fim a interface.
     -->
-    <script src="js/core/fabricaRegens.js?v=20"></script>
-    <script src="js/core/fabricaOrganizacoes.js?v=20"></script>
-    <script src="js/core/fabricaCompeticoes.js?v=20"></script>
-    <script src="js/core/fabricaTemporadas.js?v=20"></script>
-    <script src="js/modulos-esportivos/moduloBasico.js?v=20"></script>
-    <script src="js/core/eventBus.js?v=20"></script>
-    <script src="js/core/memoriaHistorica.js?v=20"></script>
-    <script src="js/core/ouvinteEstatisticas.js?v=20"></script>
-    <script src="js/core/gameLoop.js?v=20"></script>
-    <script src="js/ui/renderizador.js?v=20"></script>
+    <script src="js/core/fabricaRegens.js?v=21"></script>
+    <script src="js/core/fabricaOrganizacoes.js?v=21"></script>
+    <script src="js/core/fabricaCompeticoes.js?v=21"></script>
+    <script src="js/core/fabricaTemporadas.js?v=21"></script>
+    <script src="js/modulos-esportivos/moduloBasico.js?v=21"></script>
+    <script src="js/core/eventBus.js?v=21"></script>
+    <script src="js/core/memoriaHistorica.js?v=21"></script>
+    <script src="js/core/ouvinteEstatisticas.js?v=21"></script>
+    <script src="js/core/gameLoop.js?v=21"></script>
+    <script src="js/ui/renderizador.js?v=21"></script>
   </body>
 </html>

@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v20**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v21**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -117,6 +117,23 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 21 (Fase 3) — Sistema de Notícias (Visualização Efêmera)
+- **Arquivos:** `index.html`, `css/style.css`, `js/ui/renderizador.js`.
+- **`noticiasEfemerias`** (global na UI): array com no máximo **10** manchetes.
+- **`adicionarNoticiaUI(mensagem)`:** `unshift` no topo; se passar de 10, `.pop()`
+  na mais antiga; redesenha o painel.
+- **`renderizarFeedNoticias()`:** desenha o painel "📰 Últimas Notícias" (leitura
+  pura do array).
+- **Painel FIXO:** `#feed-noticias` fica **fora** do `#pagina-principal` (entre o
+  cabeçalho e o layout), então **persiste** ao navegar entre páginas.
+- **Isolamento (só visual):** **sem** ouvintes, **sem** EventBus, **sem** Motor
+  Lógico. É efêmero — não toca a Memória Histórica.
+- **Teste:** duas manchetes fictícias em `finalizarBigBang`; reset em
+  `iniciarMundo`.
+- **Teste validado (headless/http):** 2 manchetes (mais nova no topo); feed
+  persiste ao navegar; 12 adições → capado em 10; sem erros.
+- Cache: `?v=20` → `?v=21` (R2).
 
 ### ✅ Passo 20 (Fase 3) — Ouvinte de Contratos (Rescisões por Lesão)
 - **Arquivos:** `js/core/ouvinteContratos.js` (novo), `js/core/memoriaHistorica.js`.

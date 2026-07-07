@@ -18,6 +18,10 @@ let organizacoesDoMundo = [];
 let competicoesGlobais = [];
 let temporadasGlobais = [];
 
+// Feed de notícias EFÊMERAS (só exibição; NÃO é a Memória Histórica).
+// Guarda no máximo as 10 manchetes mais recentes.
+let noticiasEfemerias = [];
+
 // Estado da INTERFACE: uma função que sabe redesenhar a página que
 // está aberta agora. Cada abrirPaginaX() a define. Assim, ao avançar
 // o tempo, recarregamos a tela atual (seja ela de atleta, organização
@@ -32,6 +36,8 @@ function iniciarMundo() {
   memoriaHistorica.length = 0; // zera a Memória Histórica
   rodadaAtual = 1; // reinicia o relógio do universo
   recarregarPaginaAtual = null; // nenhuma página aberta
+  noticiasEfemerias = []; // zera o feed de notícias
+  renderizarFeedNoticias(); // limpa o painel na tela
   document.getElementById("lista-competicoes").innerHTML = "";
   document.getElementById("lista-atletas").innerHTML = "";
   document.getElementById("lista-organizacoes").innerHTML = "";
@@ -137,6 +143,40 @@ function finalizarBigBang(competicao) {
   // Remove o loading e mostra a dica inicial.
   document.getElementById("pagina-principal").innerHTML =
     '<p class="dica">← Selecione um item no menu para explorar o universo.</p>';
+
+  // TESTE do Passo 21: duas manchetes fictícias para conferir o painel.
+  // (Ainda sem ligação com o EventBus — puramente visual.)
+  adicionarNoticiaUI("Lesão grave abala a liga!");
+  adicionarNoticiaUI("O atleta X rescindiu o contrato!");
+}
+
+// Insere uma manchete no TOPO do feed efêmero e mantém no máximo 10
+// (descarta a mais antiga com .pop()). Redesenha o painel em seguida.
+function adicionarNoticiaUI(mensagem) {
+  noticiasEfemerias.unshift(mensagem);
+  if (noticiasEfemerias.length > 10) {
+    noticiasEfemerias.pop();
+  }
+  renderizarFeedNoticias();
+}
+
+// Desenha o painel de notícias (leitura pura do array efêmero).
+function renderizarFeedNoticias() {
+  const painel = document.getElementById("feed-noticias");
+  if (!painel) return;
+
+  if (noticiasEfemerias.length === 0) {
+    painel.innerHTML = "";
+    return;
+  }
+
+  const itens = noticiasEfemerias
+    .map((mensagem) => `<li>${mensagem}</li>`)
+    .join("");
+  painel.innerHTML = `
+    <h2>📰 Últimas Notícias</h2>
+    <ul class="lista-noticias">${itens}</ul>
+  `;
 }
 
 // Badge discreto no menu: cronologia do universo + volume de fatos.
