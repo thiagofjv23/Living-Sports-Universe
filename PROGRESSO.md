@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v19**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v20**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -40,6 +40,7 @@ Living-Sports-Universe/
     │   ├── fabricaContratos.js         ← ✅ Passo 18 (só lógica, não ligado ao app)
     │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
     │   ├── ouvinteSaude.js             ← ✅ Passo 19 (só lógica, não ligado ao app)
+    │   ├── ouvinteContratos.js         ← ✅ Passo 20 (só lógica, não ligado ao app)
     │   ├── workerSimulacao.js          ← ✅ Passo 17 (Web Worker da história)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
@@ -116,6 +117,24 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 20 (Fase 3) — Ouvinte de Contratos (Rescisões por Lesão)
+- **Arquivos:** `js/core/ouvinteContratos.js` (novo), `js/core/memoriaHistorica.js`.
+- **`avaliarRescisaoPorLesao(payload)`:** ouvinte PASSIVO de
+  `ATLETA_LESIONADO_GRAVEMENTE`. Acha o **contrato ativo** (`pessoaId`+
+  `organizacaoId`+`ativo`), rola um dado 1–100 e, com **30%** de chance, rescinde:
+  `ativo = false`, `anoFim = payload.ano`, e emite **`CONTRATO_RESCINDIDO`**
+  (`atletaId`, `organizacaoId`, `motivo: "lesao_grave"`, + `id`/`tipoEvento`/`ano`).
+- **Efeito dominó (Pub/Sub):** lesão → (outro ouvinte) → rescisão, sem que um
+  conheça o outro. Só se comunicam por eventos.
+- **Registro:** `registrarOuvinteContratos(contratos)` assina no EventBus e guarda
+  a base de contratos.
+- **Memória:** `ouvinteHistorico` passou a arquivar `CONTRATO_RESCINDIDO` também.
+- **Isolamento:** sem HTML/CSS; `ouvinteContratos.js` **não** ligado ao
+  `index.html` ainda (ver TODO). Depende dos contratos integrados ao mundo.
+- **Teste validado (Node):** 200 lesões → 60 rescisões (30%), 60 contratos
+  inativados com `anoFim=2026`, todos arquivados.
+- Cache: `?v=19` → `?v=20` (R2, pois `memoriaHistorica.js` mudou).
 
 ### ✅ Passo 19 (Fase 3) — Ouvinte de Saúde (Lesões Graves)
 - **Arquivos:** `js/core/ouvinteSaude.js` (novo), `js/core/memoriaHistorica.js`.

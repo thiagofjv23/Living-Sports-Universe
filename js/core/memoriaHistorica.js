@@ -25,3 +25,4 @@ function ouvinteHistorico(payload) {
 EventBus.on("PARTIDA_FINALIZADA", ouvinteHistorico);
 EventBus.on("PARTIDA_EQUIPES_FINALIZADA", ouvinteHistorico);
 EventBus.on("ATLETA_LESIONADO_GRAVEMENTE", ouvinteHistorico);
+EventBus.on("CONTRATO_RESCINDIDO", ouvinteHistorico);

@@ -100,6 +100,14 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
     presente. Depois, exibir as lesões na Linha do Tempo do atleta / departamento
     médico. (Hoje `memoriaHistorica` já arquiva `ATLETA_LESIONADO_GRAVEMENTE`.)
 
+- [ ] 🟡 **Ligar o Ouvinte de Contratos ao app (Passo 20)**
+  - **Arquivo:** `js/core/ouvinteContratos.js` (criado, isolado; testado via Node).
+  - **O que fazer:** carregar no `index.html` e chamar `registrarOuvinteContratos(
+    contratosGlobais)` no `finalizarBigBang` — **depende** de os contratos já
+    estarem integrados ao mundo (item acima). Aí o efeito dominó
+    lesão → rescisão ganha vida no presente. (Hoje `memoriaHistorica` já arquiva
+    `CONTRATO_RESCINDIDO`.) Depois: exibir rescisões na carreira do atleta.
+
 ## Ideias / Melhorias Futuras (não urgentes)
 
 - [ ] 🟢 **Oponentes clicáveis na Linha do Tempo** (navegação estilo Wikipédia):
