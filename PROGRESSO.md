@@ -37,6 +37,7 @@ Living-Sports-Universe/
     │   ├── fabricaOrganizacoes.js      ← ✅ Passo 6 (ligado ao app no Passo 8)
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
     │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (ligado ao app no Passo 15)
+    │   ├── fabricaContratos.js         ← ✅ Passo 18 (só lógica, não ligado ao app)
     │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
     │   ├── workerSimulacao.js          ← ✅ Passo 17 (Web Worker da história)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
@@ -114,6 +115,21 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 18 (Fase 3) — Fábrica de Contratos
+- **Arquivo:** `js/core/fabricaContratos.js` (novo, no Núcleo).
+- **O que faz:** `gerarContrato(pessoaId, organizacaoId, anoAtual)` cria a
+  entidade "Contrato" — o vínculo formalizado (prazo + valor) entre pessoa e org.
+- **Objeto gerado:**
+  - `id` → `crypto.randomUUID()`
+  - `pessoaId` / `organizacaoId` → referências (normalização)
+  - `anoInicio` → o `anoAtual` recebido
+  - `anoFim` → `anoInicio + sorteio(1..5)` (duração do vínculo)
+  - `salario` → sorteio simples (a função só recebe IDs, não a habilidade)
+  - `ativo` → `true` (facilita checar rescisão/expiração no futuro)
+- **Isolamento (Um Tijolo por Vez):** agnóstico, **sem** HTML/CSS/renderizador,
+  **não** ligado ao `index.html` e **sem** mudar como atletas são inscritos hoje.
+  Testável isolado via `console.log`. (Por isso o `?v=` não mudou.)
 
 ### ✅ Extra (Fase 3) — Calendário com Anos Reais
 - **Arquivos:** `js/core/gameLoop.js`, `js/core/workerSimulacao.js`,
