@@ -64,3 +64,58 @@ function simularPartida(atletaA, atletaB) {
     },
   };
 }
+
+// Passo 13 — Simula um duelo entre ORGANIZAÇÕES (equipes) e devolve
+// o Pacote de Fatos do evento. Mesma matemática dos atletas, mas
+// usando a `reputacao` da equipe como atributo base. Continua cego
+// para a tela: só calcula e devolve JSON.
+function simularPartidaEquipes(equipeA, equipeB) {
+  // Fator de sorte: um "dado" de 1 a 20 para cada equipe.
+  const sorteA = rolarDado(1, 20);
+  const sorteB = rolarDado(1, 20);
+
+  // Pontuação Final = reputação base + sorte do dia.
+  const pontuacaoA = equipeA.reputacao + sorteA;
+  const pontuacaoB = equipeB.reputacao + sorteB;
+
+  // Determina vencedor e perdedor.
+  // Empate na pontuação final é desempatado pela maior reputação
+  // base; persistindo o empate, a Equipe A leva a melhor.
+  let vencedor;
+  let perdedor;
+  if (
+    pontuacaoA > pontuacaoB ||
+    (pontuacaoA === pontuacaoB && equipeA.reputacao >= equipeB.reputacao)
+  ) {
+    vencedor = { equipe: equipeA, pontuacao: pontuacaoA };
+    perdedor = { equipe: equipeB, pontuacao: pontuacaoB };
+  } else {
+    vencedor = { equipe: equipeB, pontuacao: pontuacaoB };
+    perdedor = { equipe: equipeA, pontuacao: pontuacaoA };
+  }
+
+  // Pacote de Fatos (JSON) — a única saída do módulo.
+  return {
+    tipoEvento: "PARTIDA_EQUIPES_FINALIZADA",
+    dataSimulada: "2026-03-01",
+    competidores: {
+      equipeA: { id: equipeA.id, nome: equipeA.nome },
+      equipeB: { id: equipeB.id, nome: equipeB.nome },
+    },
+    resultado: {
+      vencedorId: vencedor.equipe.id,
+      perdedorId: perdedor.equipe.id,
+      pontuacaoVencedor: vencedor.pontuacao,
+      pontuacaoPerdedor: perdedor.pontuacao,
+    },
+  };
+}
+
+// Teste isolado do Passo 13 — roda SÓ fora do navegador (ex.: Node).
+// No browser, `window` existe, então o bloco é ignorado e nada
+// polui/roda no console do app.
+if (typeof window === "undefined") {
+  const equipe1 = { id: "equipe-A-1", nome: "Clube Alpha", reputacao: 70 };
+  const equipe2 = { id: "equipe-B-2", nome: "Equipe Sparta", reputacao: 55 };
+  console.log(simularPartidaEquipes(equipe1, equipe2));
+}
