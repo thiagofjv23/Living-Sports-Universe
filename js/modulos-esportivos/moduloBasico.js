@@ -96,6 +96,7 @@ function simularPartidaEquipes(equipeA, equipeB) {
 
   // Pacote de Fatos (JSON) — a única saída do módulo.
   return {
+    id: crypto.randomUUID(), // identidade única desta partida
     tipoEvento: "PARTIDA_EQUIPES_FINALIZADA",
     dataSimulada: "2026-03-01",
     competidores: {

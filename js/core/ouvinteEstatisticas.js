@@ -18,6 +18,10 @@ function atualizarClassificacaoTemporada(payload, temporada) {
     return temporada.classificacao;
   }
 
+  // Registra o rastro da partida na temporada: guarda apenas o ID do
+  // jogo (normalização) — o fato completo vive na Memória Histórica.
+  temporada.jogos.push(payload.id);
+
   const { vencedorId, perdedorId } = payload.resultado;
 
   // Encontra as linhas da tabela pelos IDs (mesma chave que usamos

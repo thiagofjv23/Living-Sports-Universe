@@ -37,9 +37,9 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   ✅ **Feito no Passo 15.5:** `simularRodadaCompeticao(competicao, organizacoes)`
   no `gameLoop.js` (emite `PARTIDA_EQUIPES_FINALIZADA` sem DOM), chamada pelo
   `avancarTempo`. A tabela agora enche ao clicar "Avançar".
-  - **Pendência menor restante:** ainda **não** empurramos os IDs dos jogos em
-    `temporada.jogos` (o array segue vazio). Fazer quando formos exibir o
-    calendário/lista de jogos da temporada.
+  - ✅ **Pendência menor resolvida no Passo 15.6:** o pacote de fatos ganhou `id`
+    e o ouvinte faz `temporada.jogos.push(payload.id)`. O array já registra os
+    jogos ocorridos. (Falta só a interface de calendário, quando fizer sentido.)
   - **Origem:** correção de limpeza de estado (não alterado por ser fora do
     escopo "apenas limpeza").
 
