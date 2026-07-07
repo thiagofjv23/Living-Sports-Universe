@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v10**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v11**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -110,6 +110,20 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+### ✅ Passo 12 (Fase 2) — Inicialização da Tabela de Classificação
+- **Arquivo:** `js/core/gameLoop.js` (Núcleo).
+- **Função nova:** `iniciarClassificacaoTemporada(temporada, competicao)` —
+  percorre `competicao.participantes` (IDs) e, para cada equipe, dá `push` de uma
+  **linha de estatísticas zerada** em `temporada.classificacao`:
+  `{ organizacaoId, pontos: 0, vitorias: 0, derrotas: 0 }`.
+- **Normalização:** guarda só o `organizacaoId` + números, nunca o objeto da org.
+- **Sem interface:** nenhuma alteração de HTML/CSS/renderizador (CQRS mantido).
+- **Teste (guardado, Node-only):** novo bloco `if (typeof window === "undefined")`
+  no `gameLoop.js` — inscreve 3 orgs numa competição, gera a temporada, inicializa
+  a classificação e faz `console.log`. Silencioso no navegador.
+- **Teste validado:** 3 participantes → 3 linhas zeradas; app no browser sem erros.
+- Cache: `?v=10` → `?v=11` (R2, pois `gameLoop.js` mudou).
 
 ### ✅ Passo 11 (Fase 2) — Fábrica de Temporadas
 - **Arquivo:** `js/core/fabricaTemporadas.js` (novo, no Núcleo).

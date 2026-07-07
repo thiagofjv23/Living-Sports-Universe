@@ -96,6 +96,23 @@ function inscreverEquipesNaCompeticao(listaOrganizacoes, competicao) {
   return competicao;
 }
 
+// Passo 12 — Inicializa a tabela de classificação de uma temporada.
+// Percorre os IDs em competicao.participantes e, para cada um, cria
+// uma LINHA de estatísticas zerada na classificacao da temporada.
+// NORMALIZAÇÃO: guarda só o organizacaoId + os números, nunca o
+// objeto completo da organização.
+function iniciarClassificacaoTemporada(temporada, competicao) {
+  competicao.participantes.forEach((organizacaoId) => {
+    temporada.classificacao.push({
+      organizacaoId: organizacaoId,
+      pontos: 0,
+      vitorias: 0,
+      derrotas: 0,
+    });
+  });
+  return temporada.classificacao;
+}
+
 // Teste isolado do Passo 7 — roda SÓ fora do navegador (ex.: Node).
 // No browser, `window` existe, então o bloco é ignorado: nada polui
 // o console do app nem quebra se as fábricas não estiverem ligadas.
@@ -109,4 +126,21 @@ if (typeof window === "undefined") {
 
   distribuirAtletasNasOrganizacoes(atletasTeste, organizacoesTeste);
   console.log(atletasTeste);
+}
+
+// Teste isolado do Passo 12 — também Node-only (silencioso no browser).
+if (typeof window === "undefined") {
+  // 1) Organizações inscritas em uma competição (Passo 10).
+  const orgsClassif = [gerarOrganizacao(), gerarOrganizacao(), gerarOrganizacao()];
+  const competicaoClassif = gerarCompeticao();
+  inscreverEquipesNaCompeticao(orgsClassif, competicaoClassif);
+
+  // 2) Temporada ligada a essa competição (Passo 11).
+  const temporadaClassif = gerarTemporada(competicaoClassif.id, 2024);
+
+  // 3) Inicializa a tabela de classificação (Passo 12).
+  iniciarClassificacaoTemporada(temporadaClassif, competicaoClassif);
+
+  console.log("Classificação inicial da temporada:");
+  console.log(temporadaClassif.classificacao);
 }
