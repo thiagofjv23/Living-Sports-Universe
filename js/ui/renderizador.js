@@ -57,7 +57,13 @@ function iniciarMundo() {
   inscreverEquipesNaCompeticao(organizacoesDoMundo, competicao);
   competicoesGlobais = [competicao];
 
-  // Cria a temporada ativa dessa competição, com a tabela zerada, e
+  // A REGRA DO ANO 50: simula 50 temporadas passadas em background,
+  // arquivando os fatos na Memória Histórica. Roda ANTES de registrar
+  // o ouvinte da temporada atual (para a história não somar pontos no
+  // presente) e ANTES de qualquer render — a tela desenha uma só vez.
+  simularHistoriaPrevia(50, competicao, organizacoesDoMundo);
+
+  // Cria a temporada ATUAL dessa competição, com a tabela zerada, e
   // registra o ouvinte que projetará os resultados na classificação.
   // (A UI apenas LÊ essa tabela; quem a atualiza é o ouvinte via bus.)
   const temporada = gerarTemporada(competicao.id, 2024);

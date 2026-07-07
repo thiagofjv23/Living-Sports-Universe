@@ -19,5 +19,8 @@ function ouvinteHistorico(payload) {
   memoriaHistorica.push(payload);
 }
 
-// Registra o ouvinte no barramento para escutar partidas finalizadas.
+// Registra o ouvinte no barramento para arquivar os fatos. A Memória
+// é o Event Store UNIVERSAL: guarda tanto partidas de atletas quanto
+// de equipes (todo fato do universo passa por aqui).
 EventBus.on("PARTIDA_FINALIZADA", ouvinteHistorico);
+EventBus.on("PARTIDA_EQUIPES_FINALIZADA", ouvinteHistorico);

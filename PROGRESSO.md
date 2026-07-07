@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v15**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v16**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -111,6 +111,28 @@ Living-Sports-Universe/
 - **Ordem de carregamento (importante):** `fabricaRegens.js` → `moduloBasico.js`
   → `eventBus.js` → `memoriaHistorica.js` → `gameLoop.js`. A Memória Histórica
   precisa do `EventBus` já definido para registrar seu ouvinte.
+
+## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 16 (Fase 3) — A Regra do Ano 50 (História Pré-Simulada)
+- **Arquivos:** `js/core/gameLoop.js`, `js/core/memoriaHistorica.js`,
+  `js/ui/renderizador.js`, `index.html`.
+- **Event Store universal:** `memoriaHistorica.js` agora também escuta
+  `PARTIDA_EQUIPES_FINALIZADA` (antes só `PARTIDA_FINALIZADA`), para arquivar os
+  jogos de equipes. **Sem isso, a história não seria gravada.**
+- **`simularHistoriaPrevia(quantidadeAnos, competicao, organizacoes, anoInicial)`
+  (Núcleo):** roda N temporadas passadas em background — cada ano gera uma
+  temporada, inscreve as equipes e simula um **round-robin** (todos contra todos),
+  emitindo cada resultado no EventBus (arquivado na memória). Não desenha e não
+  mexe no `rodadaAtual` do presente. Ao fim, `console.log(memoriaHistorica.length)`.
+  Recebe competição/orgs por parâmetro (Núcleo não depende da UI).
+- **`iniciarMundo()`:** chama `simularHistoriaPrevia(50, ...)` logo após criar as
+  entidades, **antes** de registrar o ouvinte da temporada atual (para a história
+  não pontuar no presente) e **antes** do 1º render (tela desenha 1 vez só).
+- **Teste validado (headless):** boot ~300ms (sem travar); `memoriaHistorica`
+  = 150 fatos (50 anos × 3 jogos), todos com `id`; temporada atual começa zerada
+  (história não vazou); render único; sem erros.
+- Cache: `?v=15` → `?v=16` (R2).
 
 ### ✅ Passo 15.6 (Fase 2) — Registro de Jogos na Temporada
 - **Arquivos:** `js/modulos-esportivos/moduloBasico.js`,

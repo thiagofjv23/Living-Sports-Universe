@@ -86,6 +86,43 @@ function distribuirAtletasNasOrganizacoes(listaAtletas, listaOrganizacoes) {
   return listaAtletas;
 }
 
+// Passo 16 — História pré-simulada: roda 'quantidadeAnos' de
+// temporadas passadas da competição EM BACKGROUND, arquivando todos
+// os fatos na Memória Histórica (via EventBus). NÃO desenha nada e
+// NÃO mexe no relógio do presente (rodadaAtual). As temporadas são
+// locais/descartáveis: o que fica é o rastro de FATOS na memória
+// (Event Sourcing) — a matéria-prima para recordes e ídolos futuros.
+//
+// Recebe competicao e organizacoes por parâmetro para o Núcleo não
+// depender do estado da interface.
+function simularHistoriaPrevia(quantidadeAnos, competicao, organizacoes, anoInicial) {
+  const primeiroAno = anoInicial || 1;
+
+  // Resolve as equipes participantes uma vez (não muda entre anos).
+  const equipes = competicao.participantes
+    .map((id) => organizacoes.find((org) => org.id === id))
+    .filter((org) => org);
+
+  for (let ano = 0; ano < quantidadeAnos; ano++) {
+    // 1) Nova temporada do ano + tabela inicial (inscrição das equipes).
+    const temporada = gerarTemporada(competicao.id, primeiroAno + ano);
+    iniciarClassificacaoTemporada(temporada, competicao);
+
+    // 2) Round-robin (todos contra todos) para "fechar" a temporada.
+    for (let i = 0; i < equipes.length; i++) {
+      for (let j = i + 1; j < equipes.length; j++) {
+        const resultado = simularPartidaEquipes(equipes[i], equipes[j]);
+        // Passa pelo EventBus -> arquiva o fato na Memória Histórica.
+        EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
+      }
+    }
+    // A temporada é local; os FATOS já foram arquivados na memória.
+  }
+
+  // Teste do Passo 16: volume de dados gerado pela história prévia.
+  console.log("memoriaHistorica.length após história prévia:", memoriaHistorica.length);
+}
+
 // Passo 15.5 — Simula UMA rodada da competição: forma duplas
 // aleatórias entre as EQUIPES participantes e emite o resultado de
 // cada confronto no EventBus (o ouvinte de estatísticas projeta na
