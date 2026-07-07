@@ -112,10 +112,11 @@ function simularPartidaEquipes(equipeA, equipeB) {
   };
 }
 
-// Teste isolado do Passo 13 — roda SÓ fora do navegador (ex.: Node).
-// No browser, `window` existe, então o bloco é ignorado e nada
-// polui/roda no console do app.
-if (typeof window === "undefined") {
+// Teste isolado do Passo 13 — roda SÓ no Node (ex.: terminal).
+// `window` é indefinido no Node E no Web Worker; `importScripts` só
+// existe no Worker. Exigir os dois ausentes isola o teste para o Node,
+// evitando rodar no navegador (main thread) e dentro do worker.
+if (typeof window === "undefined" && typeof importScripts === "undefined") {
   const equipe1 = { id: "equipe-A-1", nome: "Clube Alpha", reputacao: 70 };
   const equipe2 = { id: "equipe-B-2", nome: "Equipe Sparta", reputacao: 55 };
   console.log(simularPartidaEquipes(equipe1, equipe2));

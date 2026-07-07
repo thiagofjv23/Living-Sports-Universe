@@ -172,6 +172,21 @@ body {
   font-style: italic;
 }
 
+/* Tela de carregamento (história pré-simulada em background). */
+#tela-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+#tela-carregando p {
+  font-size: 18px;
+  color: #3366cc;
+  font-weight: bold;
+}
+
 /* "Pisca" sutil quando a página é (re)carregada — dá o feedback de
    que o tempo avançou e os dados foram atualizados. */
 @keyframes piscar {

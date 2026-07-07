@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v16**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v17**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -38,6 +38,7 @@ Living-Sports-Universe/
     │   ├── fabricaCompeticoes.js       ← ✅ Passo 9 (ligado ao app no Passo 10)
     │   ├── fabricaTemporadas.js        ← ✅ Passo 11 (ligado ao app no Passo 15)
     │   ├── ouvinteEstatisticas.js      ← ✅ Passo 14 (ligado ao app no Passo 15)
+    │   ├── workerSimulacao.js          ← ✅ Passo 17 (Web Worker da história)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
     │   └── gameLoop.js                 ← ✅ Passo 3 (orquestrador/teste)
@@ -113,6 +114,30 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 17 (Fase 3) — Web Worker + Indicador de Progresso
+- **Arquivos:** `js/core/workerSimulacao.js` (novo), `js/ui/renderizador.js`,
+  `js/modulos-esportivos/moduloBasico.js`, `css/style.css`, `index.html`.
+- **Worker (`workerSimulacao.js`):** roda a história pesada FORA da main thread.
+  `importScripts` das dependências (herda o `?v=` pela URL do worker). A cada ano
+  faz `postMessage({tipo:'progresso', anoAtual, totalAnos})`; ao fim,
+  `postMessage({tipo:'concluido', dados: memoriaHistorica})`.
+- **`iniciarMundo()` (UI):** gera entidades, mostra **tela de loading**, e dispara
+  `simularHistoriaEmBackground()`. No `progresso`, atualiza o texto
+  ("Construindo o universo... Ano X de 50"); no `concluido`, injeta os fatos na
+  memória local, monta a temporada atual e **renderiza uma única vez**.
+- **Fallback robusto:** se `new Worker` falhar (ex.: abrir via `file://`), cai
+  numa simulação **síncrona** (`simularHistoriaPrevia`) para o app nunca ficar
+  preso no loading. ⚠️ Web Worker exige http/https (GitHub Pages funciona).
+- **Guard corrigido:** o teste do `moduloBasico.js` passou a exigir
+  `typeof importScripts === "undefined"` também, para NÃO rodar dentro do worker
+  (onde `window` também é indefinido).
+- **`versaoAssets()`:** lê o `?v=` da tag do renderizador para o worker e seus
+  `importScripts` herdarem a mesma versão sem duplicar o número.
+- **Favicon vazio** (`data:,`) para evitar o 404 automático de `/favicon.ico`.
+- **Teste validado (headless, via http):** loading aparece; worker usado (sem
+  fallback); 150 fatos na memória; presente zerado; tabela renderiza; sem erros.
+- Cache: `?v=16` → `?v=17` (R2).
 
 ### ✅ Passo 16 (Fase 3) — A Regra do Ano 50 (História Pré-Simulada)
 - **Arquivos:** `js/core/gameLoop.js`, `js/core/memoriaHistorica.js`,

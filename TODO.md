@@ -58,6 +58,15 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   - **O que fazer:** quando houver build/deploy, automatizar o versionamento
     (hash do arquivo) em vez do `?v=N` manual.
 
+- [ ] 🟢 **Lógica da história duplicada (worker + fallback)**
+  - **Arquivos:** `js/core/workerSimulacao.js` e `js/core/gameLoop.js`
+    (`simularHistoriaPrevia`).
+  - **Contexto:** o laço de round-robin existe nos dois (o worker posta progresso;
+    o fallback síncrono roda no main thread quando não há Worker, ex.: `file://`).
+  - **O que fazer (talvez):** extrair o laço para um arquivo puro compartilhado
+    via `importScripts` no worker e `<script>` no fallback, se a duplicação
+    incomodar. Hoje é pequena e aceitável.
+
 ## Decisões de Design em Aberto
 
 - [ ] 🟡 **Regra de desempate da partida (R1)**

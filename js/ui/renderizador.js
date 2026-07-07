@@ -24,8 +24,9 @@ let temporadasGlobais = [];
 // ou competição) para refletir os novos dados. null = nada aberto.
 let recarregarPaginaAtual = null;
 
-// Ponto de entrada: cria o mundo (chamando o Núcleo), conecta as
-// entidades e desenha o menu lateral.
+// Ponto de entrada: cria as entidades, dispara a história pesada em
+// background (Web Worker) mostrando progresso, e só desenha a
+// Wikipédia quando a simulação termina.
 function iniciarMundo() {
   // --- LIMPEZA DE ESTADO: o universo nasce do zero absoluto. ---
   memoriaHistorica.length = 0; // zera a Memória Histórica
@@ -57,15 +58,66 @@ function iniciarMundo() {
   inscreverEquipesNaCompeticao(organizacoesDoMundo, competicao);
   competicoesGlobais = [competicao];
 
-  // A REGRA DO ANO 50: simula 50 temporadas passadas em background,
-  // arquivando os fatos na Memória Histórica. Roda ANTES de registrar
-  // o ouvinte da temporada atual (para a história não somar pontos no
-  // presente) e ANTES de qualquer render — a tela desenha uma só vez.
-  simularHistoriaPrevia(50, competicao, organizacoesDoMundo);
+  // Mostra a tela de carregamento enquanto a história é simulada.
+  mostrarCarregando("Construindo o universo...");
 
-  // Cria a temporada ATUAL dessa competição, com a tabela zerada, e
-  // registra o ouvinte que projetará os resultados na classificação.
-  // (A UI apenas LÊ essa tabela; quem a atualiza é o ouvinte via bus.)
+  // A REGRA DO ANO 50, agora FORA da main thread (Web Worker): simula
+  // 50 temporadas passadas com feedback de progresso. Quando terminar,
+  // monta a temporada atual e desenha a interface — uma única vez.
+  simularHistoriaEmBackground(competicao, organizacoesDoMundo, 50, () => {
+    finalizarBigBang(competicao);
+  });
+}
+
+// Dispara a simulação pesada em background. Tenta usar um Web Worker
+// (main thread livre + progresso); se o Worker não estiver disponível
+// (ex.: abrir o arquivo via file://), cai num fallback SÍNCRONO para o
+// app nunca ficar preso na tela de loading.
+function simularHistoriaEmBackground(competicao, organizacoes, totalAnos, aoConcluir) {
+  let worker = null;
+  try {
+    worker = new Worker("js/core/workerSimulacao.js?v=" + versaoAssets());
+  } catch (erro) {
+    worker = null;
+  }
+
+  // Fallback: sem Worker, roda a versão síncrona do Núcleo e conclui.
+  if (!worker) {
+    atualizarCarregando("Construindo o universo... (modo simples)");
+    simularHistoriaPrevia(totalAnos, competicao, organizacoes);
+    aoConcluir();
+    return;
+  }
+
+  worker.onmessage = (evento) => {
+    const mensagem = evento.data;
+    if (mensagem.tipo === "progresso") {
+      atualizarCarregando(
+        `Construindo o universo... Ano ${mensagem.anoAtual} de ${mensagem.totalAnos}`
+      );
+    } else if (mensagem.tipo === "concluido") {
+      // Traz os fatos gerados no worker para a Memória Histórica local.
+      mensagem.dados.forEach((fato) => memoriaHistorica.push(fato));
+      worker.terminate();
+      aoConcluir();
+    }
+  };
+
+  // Se o worker falhar em tempo de execução, também cai no fallback.
+  worker.onerror = () => {
+    worker.terminate();
+    simularHistoriaPrevia(totalAnos, competicao, organizacoes);
+    aoConcluir();
+  };
+
+  worker.postMessage({ competicao, organizacoes, totalAnos });
+}
+
+// Finaliza o "Big Bang": cria a temporada atual, registra o ouvinte de
+// estatísticas, remove o loading e desenha a Wikipédia (render único).
+function finalizarBigBang(competicao) {
+  // Temporada ATUAL com tabela zerada. O ouvinte é registrado só agora,
+  // depois da história, para o passado não somar pontos no presente.
   const temporada = gerarTemporada(competicao.id, 2024);
   iniciarClassificacaoTemporada(temporada, competicao);
   registrarOuvinteEstatisticas(temporada);
@@ -73,9 +125,36 @@ function iniciarMundo() {
 
   desenharMenuLateral();
   atualizarDisplayRodada();
-
-  // Liga o botão "Avançar 1 Rodada" ao ciclo de tempo.
   document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
+
+  // Remove o loading e mostra a dica inicial.
+  document.getElementById("pagina-principal").innerHTML =
+    '<p class="dica">← Selecione um item no menu para explorar o universo.</p>';
+}
+
+// Mostra a tela de carregamento (texto central) na área principal.
+function mostrarCarregando(texto) {
+  document.getElementById("pagina-principal").innerHTML =
+    `<div id="tela-carregando"><p>${texto}</p></div>`;
+}
+
+// Atualiza dinamicamente o texto de carregamento (feedback de progresso).
+function atualizarCarregando(texto) {
+  const alvo = document.querySelector("#tela-carregando p");
+  if (alvo) {
+    alvo.textContent = texto;
+  } else {
+    mostrarCarregando(texto);
+  }
+}
+
+// Lê a versão (?v=) do próprio bundle a partir da tag <script> do
+// renderizador, para o Worker e seus importScripts herdarem a mesma
+// trava de cache sem precisar duplicar o número em vários lugares.
+function versaoAssets() {
+  const script = document.querySelector('script[src*="renderizador.js"]');
+  const encontrado = script && script.src.match(/[?&]v=([^&]+)/);
+  return encontrado ? encontrado[1] : "";
 }
 
 // Avança o tempo: simula uma rodada da COMPETIÇÃO ativa (no Núcleo)
