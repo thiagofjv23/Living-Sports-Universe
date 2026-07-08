@@ -150,6 +150,7 @@ function finalizarBigBang(competicao) {
   registrarOuvinteContratos(contratosGlobais); // rescisões (Passo 20)
   iniciarOuvinteRecordes(); // recordes históricos (Passo 23) — semeia da história
   iniciarOuvinteEnvelhecimento(atletasDoMundo); // idade +1 a cada ano (Passo 26)
+  iniciarOuvinteDeclinio(atletasDoMundo); // 32+ perde habilidade (Passo 27)
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
   // VIRADA DE TEMPORADA: quando o Núcleo anuncia TEMPORADA_FINALIZADA,

@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v26**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v27**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,20 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 27 (Fase 3) — Ouvinte de Declínio Físico
+- **Arquivos:** `js/core/ouvinteDeclinio.js` (novo), `js/ui/renderizador.js`,
+  `index.html`.
+- **`iniciarOuvinteDeclinio(atletas)`:** escuta `TEMPORADA_FINALIZADA`; para cada
+  atleta com **idade ≥ 32** (`IDADE_INICIO_DECLINIO`), reduz `habilidade` em
+  **1–3** pontos sorteados, com piso de segurança em **1** (`Math.max`).
+- **Ordem no mesmo evento:** registrado DEPOIS do envelhecimento (ordem de
+  registro = ordem de execução) → primeiro envelhece, depois declina.
+- **Sem interface, sem reforma:** altera puramente o dado na memória.
+- **Teste validado:** Node (jovem intacto, veterano −1..3, piso em 1); headless
+  (3 temporadas: <32 intactos, 32+ declinaram, fronteira aos 32 correta, piso
+  respeitado; sem erros).
+- Cache: `?v=26` → `?v=27` (R2).
 
 ### ✅ Passo 26 (Fase 3) — Ouvinte de Envelhecimento + Virada de Ano
 - **Arquivos:** `js/core/ouvinteEnvelhecimento.js` (novo), `js/core/gameLoop.js`,
