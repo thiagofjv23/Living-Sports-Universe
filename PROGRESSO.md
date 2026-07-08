@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v28**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v29**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,24 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 29 (Fase 3) — Ouvinte de Reposição (A Nova Fornada)
+- **Arquivos:** `js/core/ouvinteReposicao.js` (novo), `js/ui/ouvinteNoticias.js`,
+  `js/ui/renderizador.js`, `index.html`.
+- **`iniciarOuvinteReposicao(atletas)`:** escuta `TEMPORADA_FINALIZADA`; loop de
+  **exatamente 15** chamadas a `gerarAtleta()`, sobrescrevendo a idade para
+  **16–18 anos**, inserindo no array global. Ao fim, emite
+  **`NOVA_FORNADA_GERADA`** `{quantidade: 15}`.
+- **Notícias:** Drama 5 — "A nova geração chegou! 15 jovens promessas entram no
+  mundo do esporte."
+- **Ciclo integrado:** os novatos usam a MESMA referência do array global, então
+  os ouvintes de envelhecimento/declínio/reforma já os incluem automaticamente.
+- **Sem lógicas adicionais** (conforme pedido): novatos entram **sem**
+  organização/contrato e o menu lateral não é redesenhado — ver TODO.
+- **Teste validado:** Node (2→17, idades 16–18, payload correto); headless
+  (12→27→42 em 2 viradas, fornada envelhece na virada seguinte, manchete exata;
+  sem erros).
+- Cache: `?v=28` → `?v=29` (R2).
 
 ### ✅ Passo 28 (Fase 3) — Ouvinte de Reforma (O Fim de uma Era)
 - **Arquivos:** `js/core/ouvinteReforma.js` (novo), `js/core/memoriaHistorica.js`,

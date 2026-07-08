@@ -110,10 +110,17 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
 
 ## Ciclo de Vida — próximos tijolos naturais (pós Passos 26–28)
 
-- [ ] 🟡 **Gerar "regens" para repor os reformados:** hoje o elenco só encolhe.
-  Criar um ouvinte de `ATLETA_REFORMADO` (ou da virada de ano) que gera um novo
-  atleta jovem (`gerarAtleta`), o vincula à organização vaga e cria contrato —
-  fechando o ciclo nascimento → carreira → reforma → substituição.
+- [x] 🟡 **Gerar "regens" para repor os reformados** ✅ **Feito no Passo 29**
+  (`ouvinteReposicao.js`: 15 jovens de 16–18 anos por virada de ano).
+  - **Pendências restantes (por ordem de impacto):**
+    - 🟡 Os novatos entram **sem organização nem contrato** (agentes livres) —
+      criar a lógica de recrutamento/draft para as equipes preencherem vagas.
+    - 🟡 O **menu lateral não redesenha** ao chegar a fornada — os novatos só
+      aparecem na lista de Atletas após reiniciar. Redesenhar o menu (ou seção
+      "Agentes Livres") ao ouvir `NOVA_FORNADA_GERADA`.
+    - 🟢 Crescimento populacional: +15/ano com ~poucas reformas/ano → o array
+      cresce sem limite no longo prazo. Avaliar equilíbrio (fornada menor,
+      reformas mais agressivas, ou "sumidouro" de atletas sem clube).
 - [ ] 🟡 **Exibir o ciclo de vida na interface:** status "Reformado" na página do
   atleta e no elenco (hoje o reformado aparece igual aos ativos); aposentadoria e
   lesões na Linha do Tempo (os fatos já estão na memória).

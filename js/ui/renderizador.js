@@ -152,6 +152,7 @@ function finalizarBigBang(competicao) {
   iniciarOuvinteEnvelhecimento(atletasDoMundo); // idade +1 a cada ano (Passo 26)
   iniciarOuvinteDeclinio(atletasDoMundo); // 32+ perde habilidade (Passo 27)
   iniciarOuvinteReforma(atletasDoMundo); // aposentadorias (Passo 28)
+  iniciarOuvinteReposicao(atletasDoMundo); // fornada anual de jovens (Passo 29)
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
   // VIRADA DE TEMPORADA: quando o Núcleo anuncia TEMPORADA_FINALIZADA,

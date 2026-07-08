@@ -70,4 +70,11 @@ function iniciarOuvinteNoticias() {
     adicionarNoticiaUI(manchete);
     renderizarFeedNoticias();
   });
+
+  // Drama 5: a nova geração chega ao mundo do esporte.
+  EventBus.on("NOVA_FORNADA_GERADA", (payload) => {
+    const manchete = `A nova geração chegou! ${payload.quantidade} jovens promessas entram no mundo do esporte.`;
+    adicionarNoticiaUI(manchete);
+    renderizarFeedNoticias();
+  });
 }
