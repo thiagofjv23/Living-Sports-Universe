@@ -173,6 +173,41 @@ body {
   font-style: italic;
 }
 
+/* ===== Tela de Recordes (Hall da Fama) ===== */
+#area-recordes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.card-recorde {
+  border: 1px solid #a2a9b1;
+  border-top: 4px solid #c8a51b;
+  border-radius: 6px;
+  padding: 14px 18px;
+  min-width: 220px;
+  background: #fffdf5;
+}
+
+.recorde-rotulo {
+  font-size: 13px;
+  color: #54595d;
+}
+
+.recorde-valor {
+  font-size: 34px;
+  font-weight: bold;
+  color: #c8a51b;
+  line-height: 1.1;
+  margin: 4px 0;
+}
+
+.recorde-detentor {
+  font-size: 13px;
+  color: #202122;
+}
+
 /* ===== Tela de Calendário ===== */
 #nav-calendario {
   display: flex;

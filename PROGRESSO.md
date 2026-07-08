@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v32**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v33**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -54,7 +54,8 @@ Living-Sports-Universe/
     └── ui/                             ← TELA (CQRS: só lê os dados)
         ├── renderizador.js             ← ✅ Passo 4 (implementado)
         ├── ouvinteNoticias.js          ← ✅ Passo 22 (ponte eventos → feed)
-        └── calendarioUI.js             ← ✅ Passo 31 (tela de calendário)
+        ├── calendarioUI.js             ← ✅ Passo 31 (tela de calendário)
+        └── recordesUI.js               ← ✅ Passo 32 (tela de recordes)
 ```
 
 ---
@@ -123,6 +124,27 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 32 (Fase 3) — Tela de Recordes (Hall da Fama)
+- **Arquivos:** `js/ui/recordesUI.js` (novo), `js/core/ouvinteRecordes.js`,
+  `js/ui/renderizador.js`, `css/style.css`, `index.html`.
+- **Núcleo (livro de recordes legível):** o `ouvinteRecordes` deixou de guardar
+  só o valor privado e passou a manter **`recordesGlobais`** — por recorde:
+  `{rotulo, valor, nomeEquipe, organizacaoId, ano}`. `iniciarOuvinteRecordes`
+  **semeia** o livro varrendo a história pré-jogo (silenciosamente, capturando
+  detentor e ano) e o atualiza ao vivo. Refatorado com `_extrairDadosPartida` e
+  `_atualizarRecorde(tipo, valor, dados, emitir)`.
+- **Tela (`recordesUI.js`, CQRS):** `abrirPaginaRecordes` + `renderizarRecordes`
+  desenham cartões (rótulo, valor grande, detentor **clicável** → página da
+  equipe, temporada). Só **lê** `recordesGlobais`.
+- **Elo reativo:** `EventBus.on("NOVO_RECORDE_QUEBRADO", renderizarRecordes)` no
+  `finalizarBigBang` — a tela se redesenha sozinha quando um recorde cai enquanto
+  o usuário avança o calendário.
+- **Menu:** botão **🏆 Recordes**; CSS dos cartões (Hall da Fama, dourado).
+- **Teste validado:** Node (livro semeado com detentor); headless (abre com
+  recordes pré-jogo — ex.: 115/1977, 69/2016; quebra ao vivo com 999 → cartões
+  atualizam; detentor navega para a org; sem erros).
+- Cache: `?v=32` → `?v=33` (R2).
 
 ### ✅ Passo 31 (Fase 3) — Tela de Calendário
 - **Arquivos:** `js/ui/calendarioUI.js` (novo), `js/core/calendario.js`,

@@ -155,6 +155,18 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
 - [ ] 🟢 **Curva de crescimento dos jovens:** além do declínio dos 32+, jovens
   poderiam ganhar habilidade até um pico (ex.: 27 anos), criando arcos de carreira.
 
+## Recordes — ideias futuras (pós Passo 32)
+
+- [ ] 🟢 **Mais categorias de recorde:** hoje há 2 (maior pontuação, maior
+  diferença). Fáceis de adicionar como novas chaves em `recordesGlobais` +
+  `_atualizarRecorde` (ex.: sequência de vitórias, mais títulos, artilharia
+  quando houver gols individuais). Cada nova chave aparece na tela sozinha.
+- [ ] 🟢 **Histórico de um recorde:** hoje o livro guarda só o detentor ATUAL.
+  Poderíamos manter a linha sucessória (quem bateu, quando) lendo a
+  `memoriaHistorica` — recomputável a qualquer momento (Event Sourcing).
+- [ ] 🟢 **Recordes individuais de atletas** quando existirem estatísticas
+  pessoais (gols, jogos, etc.).
+
 ## Ideias / Melhorias Futuras (não urgentes)
 
 - [ ] 🟢 **Oponentes clicáveis na Linha do Tempo** (navegação estilo Wikipédia):

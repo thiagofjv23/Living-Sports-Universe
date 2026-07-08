@@ -196,6 +196,11 @@ function finalizarBigBang(competicao) {
   atualizarBadgeMetadados();
   document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
   document.getElementById("btn-calendario").addEventListener("click", abrirPaginaCalendario);
+  document.getElementById("btn-recordes").addEventListener("click", abrirPaginaRecordes);
+
+  // ELO REATIVO: quando um recorde novo cai, a tela de recordes (se
+  // aberta) se redesenha sozinha.
+  EventBus.on("NOVO_RECORDE_QUEBRADO", () => renderizarRecordes());
 
   // Remove o loading e mostra a dica inicial.
   document.getElementById("pagina-principal").innerHTML =
