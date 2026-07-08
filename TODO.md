@@ -157,10 +157,11 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
 
 ## Recordes — ideias futuras (pós Passo 32)
 
-- [ ] 🟢 **Mais categorias de recorde:** hoje há 2 (maior pontuação, maior
-  diferença). Fáceis de adicionar como novas chaves em `recordesGlobais` +
-  `_atualizarRecorde` (ex.: sequência de vitórias, mais títulos, artilharia
-  quando houver gols individuais). Cada nova chave aparece na tela sozinha.
+- [x] 🟢 **Mais categorias de recorde** ✅ **Feito no Passo 33:** adicionadas
+  **Maior Sequência de Vitórias** e **Mais Títulos** (campeão do ano), derivadas
+  dos fatos. Cada nova chave apareceu na tela sozinha.
+  - **Restante:** **Artilharia** depende de gols individuais (não existem ainda) —
+    fica para quando houver estatísticas por atleta.
 - [ ] 🟢 **Histórico de um recorde:** hoje o livro guarda só o detentor ATUAL.
   Poderíamos manter a linha sucessória (quem bateu, quando) lendo a
   `memoriaHistorica` — recomputável a qualquer momento (Event Sourcing).

@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v33**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v34**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -124,6 +124,25 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 33 (Fase 3) — Novas Categorias de Recorde
+- **Arquivos:** `js/core/ouvinteRecordes.js`, `js/ui/ouvinteNoticias.js`.
+- **Duas categorias novas (derivadas dos fatos — Event Sourcing):**
+  - **MAIOR_SEQUENCIA** (mais vitórias seguidas): estado incremental por equipe
+    (`_sequenciaPorEquipe`) — vencedor +1, perdedor zera, "bye" não altera.
+  - **MAIS_TITULOS** (campeão da temporada): `_campeaoDoAno(ano)` reconstrói o
+    campeão de cada ano lendo os fatos; título contabilizado por equipe. Semeia
+    os 50 campeões da história e, ao vivo, dá o título ao campeão em
+    `TEMPORADA_FINALIZADA`.
+  - **Artilharia** ficou de fora (depende de gols individuais, ainda inexistentes).
+- **Refatoração:** `_registrarNovoRecorde` centraliza gravação+emissão; helpers
+  `_atualizarRecordeValor`, `_processarSequencia`, `_registrarTitulo`.
+- **UI sem alteração:** a tela de recordes itera `recordesGlobais`, então os 2
+  cartões novos apareceram sozinhos (prova da arquitetura). `ouvinteNoticias`
+  ganhou manchetes específicas para os novos tipos.
+- **Teste validado:** Node (4 categorias); headless (semeado dos 50 anos —
+  ex.: sequência 29/2007, títulos 37/2025; título ao vivo em 2026→2027; sem erros).
+- Cache: `?v=33` → `?v=34` (R2).
 
 ### ✅ Passo 32 (Fase 3) — Tela de Recordes (Hall da Fama)
 - **Arquivos:** `js/ui/recordesUI.js` (novo), `js/core/ouvinteRecordes.js`,

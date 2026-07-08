@@ -55,6 +55,10 @@ function iniciarOuvinteNoticias() {
       detalhe = `a maior pontuação de todos os tempos (${payload.valor})`;
     } else if (payload.tipo === "MAIOR_DIFERENCA") {
       detalhe = `a maior diferença de pontos da história (${payload.valor})`;
+    } else if (payload.tipo === "MAIOR_SEQUENCIA") {
+      detalhe = `a maior sequência de vitórias da história (${payload.valor} seguidas)`;
+    } else if (payload.tipo === "MAIS_TITULOS") {
+      detalhe = `o recorde de títulos (${payload.valor} conquistas)`;
     } else {
       detalhe = `um novo recorde (${payload.valor})`;
     }
