@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v29**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v30**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,25 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 30 (Fase 3) — Ouvinte de Mercado (Janela de Transferências)
+- **Arquivos:** `js/core/ouvinteMercado.js` (novo), `js/ui/ouvinteNoticias.js`,
+  `js/ui/renderizador.js`, `index.html`.
+- **`iniciarOuvinteMercado(atletas, contratos, organizacoes)`:** escuta
+  `NOVA_FORNADA_GERADA`. Monta os **agentes livres** (atletas `ativo !== false`
+  sem contrato ativo), ordena por **habilidade (desc)**. `LIMITE_ELENCO = 5`:
+  para cada org, `vagas = 5 - contratosAtivos`; se houver, assina os N melhores
+  (contrato `anoAtual..anoAtual+3`, seta `organizacaoId`). Emite
+  **`MERCADO_ENCERRADO`** `{contratosAssinados}`.
+- **Meritocracia:** sobra desempregado quem tem menor habilidade.
+- **Notícias:** Drama 6 — "O Mercado Fechou! N novos contratos...".
+- **Nota (não é bug):** o mercado só **preenche** vagas, não dispensa; uma org
+  que começou acima de 5 (distribuição inicial aleatória) permanece assim até
+  jogadores saírem naturalmente. Registrado no TODO.
+- **Teste validado:** Node (7 vagas → 7 assinados, sobra o de habilidade 10,
+  `anoFim=anoAtual+3`); headless (virada → fornada+mercado; orgs com vaga vão a 5;
+  4 contratos; manchetes exatas; sem erros).
+- Cache: `?v=29` → `?v=30` (R2).
 
 ### ✅ Passo 29 (Fase 3) — Ouvinte de Reposição (A Nova Fornada)
 - **Arquivos:** `js/core/ouvinteReposicao.js` (novo), `js/ui/ouvinteNoticias.js`,

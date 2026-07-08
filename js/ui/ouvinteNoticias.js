@@ -77,4 +77,11 @@ function iniciarOuvinteNoticias() {
     adicionarNoticiaUI(manchete);
     renderizarFeedNoticias();
   });
+
+  // Drama 6: a janela de transferências fechou.
+  EventBus.on("MERCADO_ENCERRADO", (payload) => {
+    const manchete = `O Mercado Fechou! ${payload.contratosAssinados} novos contratos foram assinados pelos clubes.`;
+    adicionarNoticiaUI(manchete);
+    renderizarFeedNoticias();
+  });
 }

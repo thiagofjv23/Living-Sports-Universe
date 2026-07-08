@@ -121,6 +121,17 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
     - 🟢 Crescimento populacional: +15/ano com ~poucas reformas/ano → o array
       cresce sem limite no longo prazo. Avaliar equilíbrio (fornada menor,
       reformas mais agressivas, ou "sumidouro" de atletas sem clube).
+
+- [ ] 🟢 **Mercado só preenche, não dispensa (Passo 30)**
+  - **Arquivo:** `js/core/ouvinteMercado.js`.
+  - **Contexto:** `LIMITE_ELENCO = 5` só computa vagas; uma org que já tem >5
+    (ex.: distribuição inicial 3/6/3) fica acima do ideal até jogadores saírem.
+  - **O que fazer (talvez):** lógica de dispensa dos piores quando o elenco excede
+    o limite, e/ou equilibrar a distribuição inicial dos atletas (Passo 7).
+- [ ] 🟢 **Reforma/expiração deveriam liberar a vaga no mercado (Passo 30):**
+  contrato de reformado continua `ativo:true` e ocupa slot no `contratosAtivos`
+  da org — reduz vagas fantasma. Ligar reforma → encerrar contrato (já no TODO do
+  ciclo de vida) resolve isto também.
 - [ ] 🟡 **Exibir o ciclo de vida na interface:** status "Reformado" na página do
   atleta e no elenco (hoje o reformado aparece igual aos ativos); aposentadoria e
   lesões na Linha do Tempo (os fatos já estão na memória).
