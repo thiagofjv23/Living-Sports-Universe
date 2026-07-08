@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v30**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v31**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -43,6 +43,8 @@ Living-Sports-Universe/
     │   ├── ouvinteSaude.js             ← ✅ Passo 19 (só lógica, não ligado ao app)
     │   ├── ouvinteContratos.js         ← ✅ Passo 20 (ligado ao app no Passo 22)
     │   ├── ouvinteRecordes.js          ← ✅ Passo 23 (Historiador, ligado ao app)
+    │   ├── calendario.js               ← ✅ Apêndice (relógio dia a dia)
+    │   ├── agendador.js                ← ✅ Apêndice (dia → competições do dia)
     │   ├── workerSimulacao.js          ← ✅ Passo 17 (Web Worker da história)
     │   ├── eventBus.js                 ← ✅ Passo 3 (implementado)
     │   ├── memoriaHistorica.js         ← ✅ Passo 3 (implementado)
@@ -120,6 +122,34 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Apêndice de Correção (pré-Passo 31) — Calendário Dia a Dia
+- **Objetivo:** o tempo passa a transcorrer como na vida real (dia a dia); a cada
+  dia o Núcleo "puxa" as competições que têm rodada naquela data. Resolve o TODO
+  da `dataSimulada` fixa. **Só a lógica** — a UI do calendário é o próximo passo.
+- **Arquivos novos:** `js/core/calendario.js` (relógio), `js/core/agendador.js`
+  (mapeia dia → competições do dia).
+- **`calendario.js`:** `dataAtual` {ano,mes,dia} começa em 01/01/2026;
+  `avancarUmDia()` emite `DIA_AVANCOU` e, ao virar o ano (31/12→01/01), sincroniza
+  `anoAtual` e emite `TEMPORADA_FINALIZADA`. Helpers de data + `gerarCalendarioRodadas`
+  (espalha N rodadas pelo ano) + `reiniciarCalendario`.
+- **`agendador.js`:** ouve `DIA_AVANCOU`; para cada competição cujo
+  `calendarioRodadas` bate com a data de hoje, chama `simularRodadaCompeticao`.
+- **`gameLoop.js` refatorado:** `simularRodadaCompeticao` virou **função pura**
+  (não avança tempo/virada); carimba `ano` **e a `dataSimulada` real** do jogo.
+  Removido o código morto de partidas de ATLETAS (`gerarMundo`, `simularRodada`,
+  `simularConfronto`, `sortearAtleta`) e o global `rodadaAtual` (obsoletos).
+- **UI mínima:** botão "Avançar 1 Dia"; cabeçalho mostra a **data** (📅 DD/MM/AAAA);
+  `avancarTempo` agora chama `avancarUmDia()`; `iniciarMundo` define o
+  `calendarioRodadas` da competição e `finalizarBigBang` inicia o agendador. O
+  handler de `TEMPORADA_FINALIZADA` usa `competicoesGlobais[0]`.
+- **Teste validado:** Node (365 dias → 6 jogos nas datas certas, virada em
+  2027-01-01, datas reais carimbadas, 18 pts); headless (dia a dia; jogos só nas
+  datas agendadas; tabela reativa; virada → fornada/mercado/ciclo de vida;
+  atletas 12→27; sem erros).
+- **Nota:** história pré-simulada (worker) não usa o calendário — fatos históricos
+  mantêm a `dataSimulada` padrão do módulo (cosmético, o `ano` é o que importa).
+- Cache: `?v=30` → `?v=31` (R2).
 
 ### ✅ Passo 30 (Fase 3) — Ouvinte de Mercado (Janela de Transferências)
 - **Arquivos:** `js/core/ouvinteMercado.js` (novo), `js/ui/ouvinteNoticias.js`,

@@ -35,7 +35,7 @@ let recarregarPaginaAtual = null;
 function iniciarMundo() {
   // --- LIMPEZA DE ESTADO: o universo nasce do zero absoluto. ---
   memoriaHistorica.length = 0; // zera a Memória Histórica
-  rodadaAtual = 1; // reinicia o relógio do universo
+  reiniciarCalendario(); // relógio volta a 01/01 do ano presente
   recarregarPaginaAtual = null; // nenhuma página aberta
   contratosGlobais = []; // zera a base de contratos
   noticiasEfemerias = []; // zera o feed de notícias
@@ -70,6 +70,8 @@ function iniciarMundo() {
   // (guarda só os IDs das equipes em competicao.participantes).
   const competicao = gerarCompeticao();
   inscreverEquipesNaCompeticao(organizacoesDoMundo, competicao);
+  // Define em quais dias do ano esta competição tem rodada.
+  competicao.calendarioRodadas = gerarCalendarioRodadas(RODADAS_POR_TEMPORADA);
   competicoesGlobais = [competicao];
 
   // Mostra a tela de carregamento enquanto a história é simulada.
@@ -156,11 +158,15 @@ function finalizarBigBang(competicao) {
   iniciarOuvinteMercado(atletasDoMundo, contratosGlobais, organizacoesDoMundo); // janela de transferências (Passo 30)
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
 
-  // VIRADA DE TEMPORADA: quando o Núcleo anuncia TEMPORADA_FINALIZADA,
+  // CALENDÁRIO: o Agendador escuta cada dia e simula as competições
+  // que têm rodada naquela data. O tempo avança dia a dia (avancarUmDia).
+  iniciarAgendador(competicoesGlobais, organizacoesDoMundo);
+
+  // VIRADA DE TEMPORADA: quando o calendário anuncia TEMPORADA_FINALIZADA,
   // a UI cria a temporada do ano novo (tabela zerada), re-aponta o
   // ouvinte de classificação e atualiza o que estiver na tela.
   EventBus.on("TEMPORADA_FINALIZADA", (payload) => {
-    const comp = competicoesGlobais.find((c) => c.id === payload.competicaoId);
+    const comp = competicoesGlobais[0];
     if (!comp) return;
     const novaTemporada = gerarTemporada(comp.id, anoAtual);
     iniciarClassificacaoTemporada(novaTemporada, comp);
@@ -256,19 +262,14 @@ function versaoAssets() {
   return encontrado ? encontrado[1] : "";
 }
 
-// Avança o tempo: simula uma rodada da COMPETIÇÃO ativa (no Núcleo)
-// e, em seguida, sincroniza a interface com o novo estado do mundo.
+// Avança o tempo em UM DIA. A simulação (jogos do dia) e a virada de
+// ano acontecem no Núcleo, via calendário -> agendador -> ouvintes.
+// Aqui a UI só dispara o avanço e sincroniza a tela.
 function avancarTempo() {
-  // Simulação da rodada de EQUIPES (lógica + emit) vive no Núcleo —
-  // sem DOM aqui. O ouvinte de estatísticas projeta os resultados na
-  // classificação da temporada automaticamente.
-  const competicao = competicoesGlobais[0];
-  if (competicao) {
-    simularRodadaCompeticao(competicao, organizacoesDoMundo);
-  }
+  avancarUmDia(); // calendário emite DIA_AVANCOU (e TEMPORADA_FINALIZADA no fim do ano)
 
   atualizarDisplayTempo();
-  atualizarBadgeMetadados(); // o volume de fatos cresce a cada rodada
+  atualizarBadgeMetadados(); // o volume de fatos cresce quando há jogos
 
   // A MÁGICA DA REATIVIDADE: recarrega a tela atual (qualquer que
   // seja) para refletir os novos dados — ex.: a tabela do campeonato.
@@ -277,10 +278,9 @@ function avancarTempo() {
   }
 }
 
-// Escreve o ANO (temporada) e a rodada atual no topo da página.
+// Escreve a DATA atual do universo no topo da página (dia a dia).
 function atualizarDisplayTempo() {
-  document.getElementById("ano-atual").textContent = anoAtual;
-  document.getElementById("rodada-atual").textContent = rodadaAtual;
+  document.getElementById("data-atual").textContent = dataParaTextoBR(dataAtual);
 }
 
 // Desenha as seções clicáveis do menu: Competições, Atletas e Organizações.

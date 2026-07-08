@@ -84,12 +84,19 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   - **O que decidir:** manter assim, ou trocar por revanche/prorrogação/empate
     explícito no Pacote de Fatos.
 
-- [ ] 🟢 **`dataSimulada` fixa em `"2026-01-01"`**
-  - **Arquivo:** `js/modulos-esportivos/moduloBasico.js`.
-  - **Problema:** toda partida nasce com a mesma data fictícia; hoje o tempo é
-    representado pela `rodada`. A data não evolui.
-  - **O que fazer:** decidir se a data deve avançar junto com as rodadas (um
-    calendário do universo) ou se removemos o campo em favor de `rodada`.
+- [x] 🟢 **`dataSimulada` fixa** ✅ **Resolvido no Apêndice do Calendário:**
+  os jogos do PRESENTE agora carimbam a data real (`simularRodadaCompeticao` usa
+  `dataParaISO(dataAtual)`).
+  - **Pendência menor:** os fatos HISTÓRICOS (worker) mantêm a `dataSimulada`
+    padrão do módulo (o worker não usa o calendário) — cosmético, o `ano` é o que
+    importa. Se quiser, o worker pode carimbar uma data plausível por ano.
+
+- [ ] 🟡 **UI do Calendário (próximo passo do apêndice)**
+  - **Contexto:** a lógica dia-a-dia está pronta; falta a interface.
+  - **O que fazer:** exibir a agenda de rodadas (quais competições jogam e quando),
+    um destaque para "jogos de hoje", e provavelmente um botão "avançar até o
+    próximo jogo" (hoje são ~30 cliques até a 1ª rodada — dia a dia puro é tedioso
+    sem atalho). A data já aparece no cabeçalho (📅).
 
 ## Integrações Pendentes (entidades criadas, ainda não ligadas ao mundo)
 
