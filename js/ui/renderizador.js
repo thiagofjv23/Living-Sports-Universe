@@ -149,7 +149,28 @@ function finalizarBigBang(competicao) {
   registrarOuvinteSaude(atletasDoMundo); // lesões graves (Passo 19)
   registrarOuvinteContratos(contratosGlobais); // rescisões (Passo 20)
   iniciarOuvinteRecordes(); // recordes históricos (Passo 23) — semeia da história
+  iniciarOuvinteEnvelhecimento(atletasDoMundo); // idade +1 a cada ano (Passo 26)
   iniciarOuvinteNoticias(); // manchetes na tela (Passo 22)
+
+  // VIRADA DE TEMPORADA: quando o Núcleo anuncia TEMPORADA_FINALIZADA,
+  // a UI cria a temporada do ano novo (tabela zerada), re-aponta o
+  // ouvinte de classificação e atualiza o que estiver na tela.
+  EventBus.on("TEMPORADA_FINALIZADA", (payload) => {
+    const comp = competicoesGlobais.find((c) => c.id === payload.competicaoId);
+    if (!comp) return;
+    const novaTemporada = gerarTemporada(comp.id, anoAtual);
+    iniciarClassificacaoTemporada(novaTemporada, comp);
+    iniciarOuvinteClassificacao(novaTemporada); // re-aponta (registro único)
+    temporadasGlobais = [novaTemporada];
+    atualizarDisplayTempo();
+    adicionarNoticiaUI(
+      `Temporada ${payload.anoFinalizado} encerrada! Começa a temporada ${payload.anoNovo}.`
+    );
+    // Se a página da competição estiver aberta, redesenha com o novo ano.
+    if (document.getElementById("area-classificacao")) {
+      abrirPaginaCompeticao(comp.id);
+    }
+  });
 
   // ELO REATIVO (Passo 25): quando o Núcleo avisa que a tabela mudou,
   // a UI apenas OBEDECE e redesenha (só se a página estiver aberta).

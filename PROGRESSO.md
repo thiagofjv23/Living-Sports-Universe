@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v25**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v26**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,27 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 26 (Fase 3) — Ouvinte de Envelhecimento + Virada de Ano
+- **Arquivos:** `js/core/ouvinteEnvelhecimento.js` (novo), `js/core/gameLoop.js`,
+  `js/core/ouvinteClassificacao.js`, `js/ui/renderizador.js`, `index.html`.
+- **Pré-requisito criado — o evento de virada de ano:** uma temporada dura
+  `RODADAS_POR_TEMPORADA = 6` rodadas. Ao completá-las, o Núcleo
+  (`simularRodadaCompeticao`) incrementa `anoAtual`, zera a rodada e emite
+  **`TEMPORADA_FINALIZADA`** `{anoFinalizado, anoNovo, competicaoId}`.
+- **`ouvinteEnvelhecimento.js`:** `iniciarOuvinteEnvelhecimento(atletas)` escuta
+  `TEMPORADA_FINALIZADA` e faz `idade += 1` em todos os atletas — silencioso, sem
+  declínio/reforma (passos seguintes) e sem DOM.
+- **Virada de temporada (UI):** ouvinte em `finalizarBigBang` cria a temporada do
+  ano novo (tabela zerada), **re-aponta** o ouvinte de classificação e redesenha
+  a página da competição se aberta; manchete "Temporada X encerrada!".
+- **Guard anti-duplicação:** `iniciarOuvinteClassificacao` agora registra no bus
+  **uma única vez**; chamadas seguintes só trocam a temporada apontada (evita
+  pontos dobrados a cada ano).
+- **Teste validado:** Node (2 viradas → +2 anos em todos); headless (6 cliques →
+  2027, 12 atletas +1, tabela nova zerada, tela/manchete ok; +6 cliques → 2028 e
+  +1 de novo; sem erros).
+- Cache: `?v=25` → `?v=26` (R2).
 
 ### ✅ Passo 25 (Fase 3) — Renderização Reativa da Tabela
 - **Arquivos:** `js/ui/renderizador.js`, `css/style.css`, `index.html`.

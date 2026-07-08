@@ -16,6 +16,7 @@
 // Calendário do universo (anos reais).
 const ANO_PRESENTE = 2026; // ano do presente jogável
 const ANOS_DE_HISTORIA = 50; // anos de passado pré-simulado (1976..2025)
+const RODADAS_POR_TEMPORADA = 6; // rodadas que fecham um ano/temporada
 let anoAtual = ANO_PRESENTE; // ano corrente exibido na interface
 
 // Relógio do universo: em que rodada do ano atual o mundo está.
@@ -137,8 +138,6 @@ function simularHistoriaPrevia(quantidadeAnos, competicao, organizacoes, anoInic
 // classificação). Sem DOM aqui. Incrementa o relógio do universo.
 // Se o número de equipes for ímpar, uma folga na rodada (bye).
 function simularRodadaCompeticao(competicao, organizacoes) {
-  rodadaAtual++;
-
   // Resolve os IDs dos participantes -> objetos de organização.
   const equipes = competicao.participantes
     .map((id) => organizacoes.find((org) => org.id === id))
@@ -156,6 +155,22 @@ function simularRodadaCompeticao(competicao, organizacoes) {
     const resultado = simularPartidaEquipes(embaralhadas[i], embaralhadas[i + 1]);
     resultado.ano = anoAtual; // carimba o ANO do presente no fato
     EventBus.emit("PARTIDA_EQUIPES_FINALIZADA", resultado);
+  }
+
+  // Passagem do tempo: ao completar as rodadas da temporada, o ANO
+  // VIRA. O Núcleo atualiza o calendário e anuncia TEMPORADA_FINALIZADA
+  // — envelhecimento, declínio, reforma e a criação da nova temporada
+  // são reações de OUVINTES a este fato (Pub/Sub).
+  rodadaAtual++;
+  if (rodadaAtual > RODADAS_POR_TEMPORADA) {
+    const anoFinalizado = anoAtual;
+    anoAtual++;
+    rodadaAtual = 1;
+    EventBus.emit("TEMPORADA_FINALIZADA", {
+      anoFinalizado: anoFinalizado,
+      anoNovo: anoAtual,
+      competicaoId: competicao.id,
+    });
   }
 }
 

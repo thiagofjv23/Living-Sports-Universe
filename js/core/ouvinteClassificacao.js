@@ -58,11 +58,19 @@ function avaliarClassificacao(payload) {
   });
 }
 
+// Controle de registro único: chamadas repetidas (ex.: a cada nova
+// temporada) apenas RE-APONTAM a temporada, sem duplicar o ouvinte no
+// bus (o que dobraria a contagem de pontos).
+let _classificacaoRegistrada = false;
+
 // Registra o ouvinte, guardando a temporada atual (via parâmetro para
 // não depender do estado da interface).
 function iniciarOuvinteClassificacao(temporada) {
   _temporadaClassificacao = temporada;
-  EventBus.on("PARTIDA_EQUIPES_FINALIZADA", avaliarClassificacao);
+  if (!_classificacaoRegistrada) {
+    EventBus.on("PARTIDA_EQUIPES_FINALIZADA", avaliarClassificacao);
+    _classificacaoRegistrada = true;
+  }
 }
 
 // Teste isolado do Passo 24 — roda SÓ no Node (silencioso no browser/worker).
