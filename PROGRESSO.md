@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v31**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v32**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -53,7 +53,8 @@ Living-Sports-Universe/
     │   └── moduloBasico.js             ← ✅ Passo 2 (implementado)
     └── ui/                             ← TELA (CQRS: só lê os dados)
         ├── renderizador.js             ← ✅ Passo 4 (implementado)
-        └── ouvinteNoticias.js          ← ✅ Passo 22 (ponte eventos → feed)
+        ├── ouvinteNoticias.js          ← ✅ Passo 22 (ponte eventos → feed)
+        └── calendarioUI.js             ← ✅ Passo 31 (tela de calendário)
 ```
 
 ---
@@ -122,6 +123,24 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 31 (Fase 3) — Tela de Calendário
+- **Arquivos:** `js/ui/calendarioUI.js` (novo), `js/core/calendario.js`,
+  `js/ui/renderizador.js`, `css/style.css`, `index.html`.
+- **Tela:** grade mensal de **quadrados** (um por dia), com **hoje** destacado,
+  dias passados esmaecidos e **⚽ + nome da competição** nos dias com rodada.
+  Navegação ◀ ▶ entre meses. Aberta pelo botão **📅 Calendário** no menu.
+- **Interação:** clicar num **dia futuro** abre um **pop-up** "Deseja simular até
+  DD/MM/AAAA? [Sim] [Não]". **Sim** → simula dia a dia **até a véspera** da data
+  (para antes de simulá-la); **Não** → volta ao calendário sem alterar nada.
+- **Núcleo:** helpers `dataComparar(a,b)` e `proximoDia(d)` no `calendario.js`.
+- **CQRS respeitado:** a tela só **lê** `dataAtual` e `calendarioRodadas`; ao
+  confirmar, apenas **dispara** `avancarUmDia()` do Núcleo (como o botão), sem
+  calcular resultados nem tocar dados. DOM isolado em `js/ui/`.
+- **Teste validado (headless):** grade de janeiro (dia 30 com ⚽, hoje=1);
+  navegação p/ fevereiro; pop-up; "Não" não altera a data; "Sim" até 15/02 parou
+  em 14/02 e simulou só a rodada de 30/01; sem erros.
+- Cache: `?v=31` → `?v=32` (R2).
 
 ### ✅ Apêndice de Correção (pré-Passo 31) — Calendário Dia a Dia
 - **Objetivo:** o tempo passa a transcorrer como na vida real (dia a dia); a cada

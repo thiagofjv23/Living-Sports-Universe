@@ -32,6 +32,30 @@ function dataParaTextoBR(d) {
   return `${_pad2(d.dia)}/${_pad2(d.mes)}/${d.ano}`;
 }
 
+// Compara duas datas { ano, mes, dia }: -1 (a<b), 0 (igual), 1 (a>b).
+function dataComparar(a, b) {
+  if (a.ano !== b.ano) return a.ano < b.ano ? -1 : 1;
+  if (a.mes !== b.mes) return a.mes < b.mes ? -1 : 1;
+  if (a.dia !== b.dia) return a.dia < b.dia ? -1 : 1;
+  return 0;
+}
+
+// Devolve o dia seguinte a uma data (sem alterar a original).
+function proximoDia(d) {
+  let ano = d.ano;
+  let mes = d.mes;
+  let dia = d.dia + 1;
+  if (dia > DIAS_POR_MES[mes - 1]) {
+    dia = 1;
+    mes++;
+    if (mes > 12) {
+      mes = 1;
+      ano++;
+    }
+  }
+  return { ano: ano, mes: mes, dia: dia };
+}
+
 // Converte um "dia do ano" (1..365) em { mes, dia }.
 function diaDoAnoParaData(diaDoAno) {
   let restante = diaDoAno;

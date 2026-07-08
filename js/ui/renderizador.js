@@ -195,6 +195,7 @@ function finalizarBigBang(competicao) {
   atualizarDisplayTempo();
   atualizarBadgeMetadados();
   document.getElementById("btn-avancar").addEventListener("click", avancarTempo);
+  document.getElementById("btn-calendario").addEventListener("click", abrirPaginaCalendario);
 
   // Remove o loading e mostra a dica inicial.
   document.getElementById("pagina-principal").innerHTML =

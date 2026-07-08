@@ -91,12 +91,17 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
     padrão do módulo (o worker não usa o calendário) — cosmético, o `ano` é o que
     importa. Se quiser, o worker pode carimbar uma data plausível por ano.
 
-- [ ] 🟡 **UI do Calendário (próximo passo do apêndice)**
-  - **Contexto:** a lógica dia-a-dia está pronta; falta a interface.
-  - **O que fazer:** exibir a agenda de rodadas (quais competições jogam e quando),
-    um destaque para "jogos de hoje", e provavelmente um botão "avançar até o
-    próximo jogo" (hoje são ~30 cliques até a 1ª rodada — dia a dia puro é tedioso
-    sem atalho). A data já aparece no cabeçalho (📅).
+- [x] 🟡 **UI do Calendário** ✅ **Feito no Passo 31** (`js/ui/calendarioUI.js`):
+  grade mensal com quadrados, ⚽ nos dias de jogo, navegação de mês e pop-up
+  "simular até a data" (para na véspera). Resolve o tédio dos ~30 cliques.
+  - **Pendências/ideias restantes:**
+    - 🟢 A grade não alinha por dia da semana (o calendário do jogo é simplificado,
+      365 dias sem dias da semana). Se quiser semanas reais, adotar dia-da-semana.
+    - 🟢 "Simular até" muito longe (muitos anos) roda milhares de `avancarUmDia`
+      síncronos e trava a UI durante o loop — avaliar Web Worker / feedback de
+      progresso para saltos grandes (hoje há um teto de segurança de 100000 dias).
+    - 🟢 Marcar visualmente no calendário os dias com jogos de OUTRAS competições
+      quando houver mais de uma (hoje mostra o nome; com muitas, pode lotar).
 
 ## Integrações Pendentes (entidades criadas, ainda não ligadas ao mundo)
 
