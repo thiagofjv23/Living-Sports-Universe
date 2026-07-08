@@ -62,4 +62,12 @@ function iniciarOuvinteNoticias() {
     adicionarNoticiaUI(manchete);
     renderizarFeedNoticias();
   });
+
+  // Drama 4: um veterano pendura as chuteiras.
+  EventBus.on("ATLETA_REFORMADO", (payload) => {
+    const nomeAtleta = buscarNomeAtleta(payload.atletaId);
+    const manchete = `FIM DE UMA ERA! Aos ${payload.idade} anos, o veterano ${nomeAtleta} pendura as chuteiras!`;
+    adicionarNoticiaUI(manchete);
+    renderizarFeedNoticias();
+  });
 }

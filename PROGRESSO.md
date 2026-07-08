@@ -18,7 +18,7 @@
 | # | Regra | Onde | Motivo | Status |
 |---|-------|------|--------|--------|
 | R1 | **Desempate da partida:** se a `pontuacaoFinal` dos dois atletas for igual, vence quem tem maior `habilidade` base; se ainda assim empatar, o **Atleta A** vence. | `js/modulos-esportivos/moduloBasico.js` → `simularPartida()` | O pedido pedia `vencedor`/`perdedor`, mas não previa empate. Sem uma regra, esses campos ficariam indefinidos. | ✅ Ativa (aberta a revisão) |
-| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v27**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
+| R2 | **Trava de cache (`?v=N`):** todos os `<script>` e o CSS em `index.html` levam um sufixo de versão. **Sempre que um desses arquivos mudar, incrementar o `N`** (versão atual: **v28**), para o navegador (inclusive no celular) baixar a versão nova em vez da cópia em cache. | `index.html` | Sem DevTools/hard-refresh (ex.: Android), o navegador servia o JS antigo e mascarava mudanças já feitas. | ✅ Ativa |
 
 ---
 
@@ -120,6 +120,25 @@ Living-Sports-Universe/
   precisa do `EventBus` já definido para registrar seu ouvinte.
 
 ## — FASE 3: Profundidade Histórica e Consequências —
+
+### ✅ Passo 28 (Fase 3) — Ouvinte de Reforma (O Fim de uma Era)
+- **Arquivos:** `js/core/ouvinteReforma.js` (novo), `js/core/memoriaHistorica.js`,
+  `js/core/ouvinteSaude.js`, `js/ui/ouvinteNoticias.js`, `js/ui/renderizador.js`,
+  `index.html`.
+- **`iniciarOuvinteReforma(atletas)`:** escuta `TEMPORADA_FINALIZADA` (após
+  envelhecer/declinar). Condições: **idade > 35 E habilidade < 30** OU
+  **idade > 40** → `status: "reformado"`, `ativo: false`, e emite
+  **`ATLETA_REFORMADO`** `{atletaId, idade, organizacaoId, ano, ...}`.
+  Reformados são pulados nas viradas seguintes (sem evento duplicado).
+- **Memória:** arquiva `ATLETA_REFORMADO` (futura linha do tempo do atleta).
+- **Notícias:** Drama 4 no `ouvinteNoticias` — "FIM DE UMA ERA! Aos X anos, o
+  veterano {Nome} pendura as chuteiras!".
+- **Coerência:** `ouvinteSaude` deixou de sortear reformados como vítimas de
+  lesão (reformado não entra em campo).
+- **Teste validado:** Node (só a2/a4 reformam, 1x cada, arquivados); headless
+  (10 temporadas → 6 reformas corretas, 0 violações da regra entre ativos, sem
+  duplicatas, manchete no feed; sem erros).
+- Cache: `?v=27` → `?v=28` (R2).
 
 ### ✅ Passo 27 (Fase 3) — Ouvinte de Declínio Físico
 - **Arquivos:** `js/core/ouvinteDeclinio.js` (novo), `js/ui/renderizador.js`,

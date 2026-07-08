@@ -23,11 +23,13 @@ function avaliarSaudePosJogo(payload) {
   }
 
   // Elenco combinado das DUAS equipes que jogaram (filtro por org).
+  // Reformados não entram em campo — não podem se lesionar (Passo 28).
   const idEquipeA = payload.competidores.equipeA.id;
   const idEquipeB = payload.competidores.equipeB.id;
   const elenco = _atletasParaSaude.filter(
     (atleta) =>
-      atleta.organizacaoId === idEquipeA || atleta.organizacaoId === idEquipeB
+      atleta.status !== "reformado" &&
+      (atleta.organizacaoId === idEquipeA || atleta.organizacaoId === idEquipeB)
   );
   if (elenco.length === 0) {
     return; // sem atletas cadastrados nessas equipes, nada a fazer

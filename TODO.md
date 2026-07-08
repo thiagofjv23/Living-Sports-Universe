@@ -108,6 +108,23 @@ Legenda de prioridade: 🔴 alta · 🟡 média · 🟢 baixa
   carregado e registrado; o efeito dominó lesão → rescisão está vivo no presente.
   - **Pendência restante:** exibir as rescisões na carreira do atleta.
 
+## Ciclo de Vida — próximos tijolos naturais (pós Passos 26–28)
+
+- [ ] 🟡 **Gerar "regens" para repor os reformados:** hoje o elenco só encolhe.
+  Criar um ouvinte de `ATLETA_REFORMADO` (ou da virada de ano) que gera um novo
+  atleta jovem (`gerarAtleta`), o vincula à organização vaga e cria contrato —
+  fechando o ciclo nascimento → carreira → reforma → substituição.
+- [ ] 🟡 **Exibir o ciclo de vida na interface:** status "Reformado" na página do
+  atleta e no elenco (hoje o reformado aparece igual aos ativos); aposentadoria e
+  lesões na Linha do Tempo (os fatos já estão na memória).
+- [ ] 🟢 **Encerrar contratos na reforma:** o contrato do reformado continua
+  `ativo: true`; o ouvinte de reforma (ou o de contratos) deveria encerrá-lo
+  (`ativo: false`, `anoFim = ano da reforma`).
+- [ ] 🟢 **Expiração natural de contratos por `anoFim`:** na virada do ano,
+  desativar contratos vencidos (hoje só a rescisão por lesão desativa).
+- [ ] 🟢 **Curva de crescimento dos jovens:** além do declínio dos 32+, jovens
+  poderiam ganhar habilidade até um pico (ex.: 27 anos), criando arcos de carreira.
+
 ## Ideias / Melhorias Futuras (não urgentes)
 
 - [ ] 🟢 **Oponentes clicáveis na Linha do Tempo** (navegação estilo Wikipédia):
